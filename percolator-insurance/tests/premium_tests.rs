@@ -1,5 +1,6 @@
-use percolator_insurance::premium::{isqrt, inth_root, leverage_multiplier};
+use percolator_insurance::premium::{isqrt, inth_root, leverage_multiplier, compute_premium_per_slot};
 use percolator_insurance::MULT_SCALE;
+use percolator_insurance::risk_index::RiskIndex;
 
 // ============================================================================
 // isqrt tests
@@ -216,5 +217,96 @@ fn test_leverage_mult_quadratic_exponent() {
         (9000..=11000).contains(&r),
         "10x quadratic multiplier * 100 should be ~10000, got {}",
         r
+    );
+}
+
+// ============================================================================
+// compute_premium_per_slot tests
+// ============================================================================
+
+#[test]
+fn test_premium_zero_notional() {
+    let idx = RiskIndex::neutral();
+    let result = compute_premium_per_slot(0, 1_000_000, 100, &idx, 0);
+    assert_eq!(result, 0, "zero notional should return 0");
+}
+
+#[test]
+fn test_premium_basic_calculation() {
+    // notional=60_000, capital=40_000 → 1.5x leverage, neutral multipliers
+    let idx = RiskIndex::neutral();
+    let result = compute_premium_per_slot(60_000, 40_000, 100, &idx, 0);
+    assert!(result > 0, "basic premium should be positive, got {}", result);
+}
+
+#[test]
+fn test_premium_increases_with_leverage() {
+    let idx = RiskIndex::neutral();
+    // 5x leverage: notional=50_000, capital=10_000
+    let prem_5x = compute_premium_per_slot(50_000, 10_000, 100, &idx, 0);
+    // 25x leverage: notional=250_000, capital=10_000
+    let prem_25x = compute_premium_per_slot(250_000, 10_000, 100, &idx, 0);
+    // 100x leverage: notional=1_000_000, capital=10_000
+    let prem_100x = compute_premium_per_slot(1_000_000, 10_000, 100, &idx, 0);
+
+    assert!(prem_5x > 0, "5x premium should be positive, got {}", prem_5x);
+    assert!(
+        prem_25x > prem_5x,
+        "25x premium ({}) should exceed 5x premium ({})",
+        prem_25x, prem_5x
+    );
+    assert!(
+        prem_100x > prem_25x,
+        "100x premium ({}) should exceed 25x premium ({})",
+        prem_100x, prem_25x
+    );
+    // Superlinear: 100x vs 5x ratio should be > 50
+    let ratio = prem_100x / prem_5x;
+    assert!(
+        ratio > 50,
+        "100x/5x premium ratio should be > 50 (superlinear), got {}",
+        ratio
+    );
+}
+
+#[test]
+fn test_premium_increases_with_crowding() {
+    // Neutral index
+    let neutral_idx = RiskIndex::neutral();
+    // Crowded index: crowding multiplier = 3x
+    let crowded_idx = RiskIndex {
+        crowding: (3 * MULT_SCALE, MULT_SCALE),
+        oi_vault: (MULT_SCALE, MULT_SCALE),
+        pool_health: (MULT_SCALE, MULT_SCALE),
+    };
+
+    // 10x leverage position — use large notional/base_rate for integer resolution
+    let prem_normal = compute_premium_per_slot(100_000_000, 10_000_000, 100_000, &neutral_idx, 0);
+    let prem_crowded = compute_premium_per_slot(100_000_000, 10_000_000, 100_000, &crowded_idx, 0);
+
+    assert!(
+        prem_crowded > prem_normal,
+        "crowded premium ({}) should exceed normal premium ({})",
+        prem_crowded, prem_normal
+    );
+
+    // Ratio should be ~3x (accept 250..350 for ratio*100)
+    let ratio_x100 = (prem_crowded * 100) / prem_normal;
+    assert!(
+        (250..=350).contains(&ratio_x100),
+        "crowded/normal ratio * 100 should be ~300 (3x), got {}",
+        ratio_x100
+    );
+}
+
+#[test]
+fn test_premium_min_floor() {
+    // Very tiny notional, high capital → near-zero computed premium
+    let idx = RiskIndex::neutral();
+    let result = compute_premium_per_slot(1, 1_000_000, 100, &idx, 100);
+    assert!(
+        result >= 100,
+        "min_premium floor should apply, got {} (expected >= 100)",
+        result
     );
 }

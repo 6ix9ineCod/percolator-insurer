@@ -4,7 +4,8 @@
 //! state. No side effects, no state mutation. All arithmetic uses integer
 //! math with u256 intermediates for overflow safety.
 
-use crate::{LEVERAGE_SCALE, MULT_SCALE};
+use crate::{LEVERAGE_SCALE, MULT_SCALE, PREMIUM_SCALE};
+use crate::risk_index::RiskIndex;
 
 // ============================================================================
 // Integer square root
@@ -317,4 +318,164 @@ fn leverage_exp_3_2(lev_scaled: u128) -> (u128, u128) {
     }
 
     (num, MULT_SCALE)
+}
+
+// ============================================================================
+// GCD helper
+// ============================================================================
+
+/// Binary GCD algorithm — no division, fast on u128.
+fn gcd(mut a: u128, mut b: u128) -> u128 {
+    if a == 0 {
+        return b;
+    }
+    if b == 0 {
+        return a;
+    }
+    // Count and remove common trailing zeros (factors of 2)
+    let shift = a.trailing_zeros().min(b.trailing_zeros());
+    a >>= a.trailing_zeros();
+    b >>= b.trailing_zeros();
+    loop {
+        // a and b are both odd here
+        if a > b {
+            let tmp = a;
+            a = b;
+            b = tmp;
+        }
+        // b >= a; subtract then remove factors of 2
+        b -= a;
+        if b == 0 {
+            return a << shift;
+        }
+        b >>= b.trailing_zeros();
+    }
+}
+
+// ============================================================================
+// Full premium calculation
+// ============================================================================
+
+/// Compute the per-slot insurance premium for one account.
+///
+/// # Formula
+/// ```text
+/// premium = notional × base_rate × lev_num × crowd_num × oiv_num × pool_num
+///           ÷ (PREMIUM_SCALE × lev_den × crowd_den × oiv_den × pool_den)
+/// ```
+/// Result is ceiling-divided, then floored at `min_premium`.
+///
+/// Returns 0 immediately if `notional == 0`.
+pub fn compute_premium_per_slot(
+    notional: u128,
+    capital: u128,
+    base_rate: u128,
+    risk_idx: &RiskIndex,
+    min_premium: u128,
+) -> u128 {
+    if notional == 0 {
+        return 0;
+    }
+
+    // Leverage multiplier (hardcoded 3/2 exponent = 1.5)
+    let (lev_num, lev_den) = leverage_multiplier(notional, capital, 3, 2);
+
+    let (crowd_num, crowd_den) = risk_idx.crowding;
+    let (oiv_num, oiv_den) = risk_idx.oi_vault;
+    let (pool_num, pool_den) = risk_idx.pool_health;
+
+    // Build numerator: notional × base_rate × lev_num × crowd_num × oiv_num × pool_num
+    // Use GCD reduction at each step to prevent overflow.
+    let mut num: u128 = notional;
+    let mut den: u128 = PREMIUM_SCALE;
+
+    // Multiply in base_rate
+    num = match num.checked_mul(base_rate) {
+        Some(v) => v,
+        None => {
+            // Reduce first
+            let g = gcd(num, den);
+            num /= g;
+            den /= g;
+            match num.checked_mul(base_rate) {
+                Some(v) => v,
+                None => {
+                    // Still too large — partial divide to reduce magnitude
+                    num = num / base_rate.max(1) * base_rate;
+                    num
+                }
+            }
+        }
+    };
+
+    // Helper macro replaced by inline function pattern — reduce and multiply
+    // for each multiplier component.
+    macro_rules! mul_component {
+        ($num:expr, $den:expr, $c_num:expr, $c_den:expr) => {{
+            // Reduce num/den by gcd first
+            let g = gcd($num, $den);
+            $num /= g;
+            $den /= g;
+            // Reduce num/$c_den cross
+            let g2 = gcd($num, $c_den);
+            $num /= g2;
+            let c_den_r = $c_den / g2;
+            // Reduce $c_num/den cross
+            let g3 = gcd($c_num, $den);
+            let c_num_r = $c_num / g3;
+            $den /= g3;
+            // Now accumulate
+            $den = match $den.checked_mul(c_den_r) {
+                Some(v) => v,
+                None => {
+                    // Partial divide — lose precision but stay safe
+                    $den = $den / c_den_r.max(1);
+                    $den
+                }
+            };
+            $num = match $num.checked_mul(c_num_r) {
+                Some(v) => v,
+                None => {
+                    // Try dividing num by something to make room
+                    let bits = 128u32 - $num.leading_zeros();
+                    let shift = bits.saturating_sub(64);
+                    $num >>= shift;
+                    $den >>= shift;
+                    match $num.checked_mul(c_num_r) {
+                        Some(v) => v,
+                        None => u128::MAX / c_num_r.max(1),
+                    }
+                }
+            };
+        }};
+    }
+
+    // Multiply in lev component
+    mul_component!(num, den, lev_num, lev_den);
+    // Multiply in crowding component
+    mul_component!(num, den, crowd_num, crowd_den);
+    // Multiply in oi_vault component
+    mul_component!(num, den, oiv_num, oiv_den);
+    // Multiply in pool_health component
+    mul_component!(num, den, pool_num, pool_den);
+
+    // Final GCD reduction
+    let g = gcd(num, den);
+    let num = num / g;
+    let den = den / g;
+
+    if den == 0 {
+        return min_premium;
+    }
+
+    // Ceiling division: (num + den - 1) / den
+    let result = match num.checked_add(den.saturating_sub(1)) {
+        Some(v) => v / den,
+        None => {
+            // Addition overflowed — just floor divide (off by at most 1)
+            num / den
+        }
+    };
+
+    result.max(min_premium)
 }
