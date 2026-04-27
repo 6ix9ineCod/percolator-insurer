@@ -33,6 +33,12 @@ overflow-checks = true
 inherits = "release"
 panic = "abort"
 
+[workspace]
+members = [
+    ".",
+    "percolator-insurance",
+]
+
 [workspace.metadata.kani]
 flags = { tests = true }
 unstable = { stubbing = true }
