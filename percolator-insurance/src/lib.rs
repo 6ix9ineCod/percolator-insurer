@@ -22,6 +22,11 @@ pub mod pool;
 pub mod risk_index;
 pub mod wrapper;
 
+pub use pool::PremiumPool;
+pub use premium::{compute_premium_per_slot, isqrt, leverage_multiplier};
+pub use risk_index::RiskIndex;
+pub use wrapper::{AccountPremiumState, InsuredRiskEngine, PremiumParams};
+
 /// Premium scaling denominator (1e9, matches Percolator's FUNDING_DEN).
 pub const PREMIUM_SCALE: u128 = 1_000_000_000;
 

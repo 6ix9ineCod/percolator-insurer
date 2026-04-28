@@ -151,8 +151,7 @@ pub fn leverage_multiplier(
 ) -> (u128, u128) {
     const ONE: (u128, u128) = (MULT_SCALE, MULT_SCALE);
 
-    // Guard: zero capital → no leverage computable
-    if capital == 0 {
+    if capital == 0 || notional == 0 || exp_den == 0 {
         return ONE;
     }
 
@@ -411,53 +410,40 @@ pub fn compute_premium_per_slot(
     // Helper macro replaced by inline function pattern — reduce and multiply
     // for each multiplier component.
     macro_rules! mul_component {
-        ($num:expr, $den:expr, $c_num:expr, $c_den:expr) => {{
-            // Reduce num/den by gcd first
+        ($num:expr, $den:expr, $c_num:expr, $c_den:expr, $bail:expr) => {{
             let g = gcd($num, $den);
             $num /= g;
             $den /= g;
-            // Reduce num/$c_den cross
             let g2 = gcd($num, $c_den);
             $num /= g2;
             let c_den_r = $c_den / g2;
-            // Reduce $c_num/den cross
             let g3 = gcd($c_num, $den);
             let c_num_r = $c_num / g3;
             $den /= g3;
-            // Now accumulate
             $den = match $den.checked_mul(c_den_r) {
                 Some(v) => v,
-                None => {
-                    // Partial divide — lose precision but stay safe
-                    $den = $den / c_den_r.max(1);
-                    $den
-                }
+                None => return $bail,
             };
             $num = match $num.checked_mul(c_num_r) {
                 Some(v) => v,
                 None => {
-                    // Try dividing num by something to make room
                     let bits = 128u32 - $num.leading_zeros();
                     let shift = bits.saturating_sub(64);
                     $num >>= shift;
                     $den >>= shift;
                     match $num.checked_mul(c_num_r) {
                         Some(v) => v,
-                        None => u128::MAX / c_num_r.max(1),
+                        None => return $bail,
                     }
                 }
             };
         }};
     }
 
-    // Multiply in lev component
-    mul_component!(num, den, lev_num, lev_den);
-    // Multiply in crowding component
-    mul_component!(num, den, crowd_num, crowd_den);
-    // Multiply in oi_vault component
-    mul_component!(num, den, oiv_num, oiv_den);
-    // Multiply in pool_health component
-    mul_component!(num, den, pool_num, pool_den);
+    mul_component!(num, den, lev_num, lev_den, min_premium);
+    mul_component!(num, den, crowd_num, crowd_den, min_premium);
+    mul_component!(num, den, oiv_num, oiv_den, min_premium);
+    mul_component!(num, den, pool_num, pool_den, min_premium);
 
     // Final GCD reduction
     let g = gcd(num, den);
