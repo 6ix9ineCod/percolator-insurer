@@ -1,0 +1,29 @@
+[package]
+name = "percolator-sim"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+
+[dependencies]
+percolator-insurance = { path = "../percolator-insurance" }
+percolator = { path = "../", features = ["test"] }
+tokio = { version = "1", features = ["full"] }
+tungstenite = { version = "0.24", features = ["native-tls"] }
+tokio-tungstenite = { version = "0.24", features = ["native-tls"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+csv = "1.3"
+chrono = "0.4"
+clap = { version = "4", features = ["derive"] }
+
+[[bin]]
+name = "sim-replay"
+path = "bin/sim_replay.rs"
+
+[[bin]]
+name = "sim-live"
+path = "bin/sim_live.rs"
+
+[[bin]]
+name = "sim-optimize"
+path = "bin/sim_optimize.rs"

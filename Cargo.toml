@@ -37,6 +37,7 @@ panic = "abort"
 members = [
     ".",
     "percolator-insurance",
+    "percolator-sim",
 ]
 
 [workspace.metadata.kani]
