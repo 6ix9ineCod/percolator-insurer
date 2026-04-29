@@ -14,6 +14,7 @@ use crate::{InsuredError, MULT_SCALE, POS_SCALE};
 use percolator::{LiquidationPolicy, RiskEngine, RiskError, RiskParams, MAX_ACCOUNTS};
 
 #[derive(Clone, Copy, Debug)]
+#[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct PremiumParams {
     pub base_rate_per_slot: u128,
     pub leverage_exponent_num: u64,

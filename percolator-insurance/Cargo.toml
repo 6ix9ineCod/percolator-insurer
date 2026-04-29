@@ -10,6 +10,7 @@ path = "src/lib.rs"
 
 [dependencies]
 percolator = { path = "../", features = ["test"] }
+serde = { version = "1", features = ["derive"], optional = true }
 
 [dev-dependencies]
 proptest = "1.4"
@@ -17,3 +18,4 @@ proptest = "1.4"
 [features]
 default = []
 test = []
+serde = ["dep:serde"]
