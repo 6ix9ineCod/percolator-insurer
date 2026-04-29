@@ -16,6 +16,9 @@ csv = "1.3"
 chrono = "0.4"
 clap = { version = "4", features = ["derive"] }
 
+[dev-dependencies]
+tempfile = "3"
+
 [[bin]]
 name = "sim-replay"
 path = "bin/sim_replay.rs"
