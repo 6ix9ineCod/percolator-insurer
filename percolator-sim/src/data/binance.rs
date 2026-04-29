@@ -16,33 +16,43 @@ impl BinanceTradeSource {
 
 impl DataSource for BinanceTradeSource {
     fn next_event(&mut self) -> Option<MarketEvent> {
-        let mut record = csv::StringRecord::new();
-        if !self.reader.read_record(&mut record).ok()? {
-            return None;
+        loop {
+            let mut record = csv::StringRecord::new();
+            match self.reader.read_record(&mut record) {
+                Ok(true) => {}
+                _ => return None,
+            }
+            if record.len() < 7 {
+                continue;
+            }
+            let price_f: f64 = match record.get(1).and_then(|s| s.parse().ok()) {
+                Some(v) => v,
+                None => continue,
+            };
+            let qty_f: f64 = match record.get(2).and_then(|s| s.parse().ok()) {
+                Some(v) => v,
+                None => continue,
+            };
+            let timestamp_ms: u64 = match record.get(5).and_then(|s| s.parse().ok()) {
+                Some(v) => v,
+                None => continue,
+            };
+            let is_buyer_maker: bool = match record.get(6).and_then(|s| s.parse().ok()) {
+                Some(v) => v,
+                None => continue,
+            };
+
+            let price = (price_f * POS_SCALE as f64) as u64;
+            let qty = (qty_f * POS_SCALE as f64) as u128;
+            let is_buy = !is_buyer_maker;
+
+            return Some(MarketEvent::Trade {
+                timestamp_ms,
+                price,
+                qty,
+                is_buy,
+            });
         }
-        if record.len() < 7 {
-            return None;
-        }
-        let price_str = record.get(1)?;
-        let qty_str = record.get(2)?;
-        let timestamp_str = record.get(5)?;
-        let is_buyer_maker_str = record.get(6)?;
-
-        let price_f: f64 = price_str.parse().ok()?;
-        let qty_f: f64 = qty_str.parse().ok()?;
-        let timestamp_ms: u64 = timestamp_str.parse().ok()?;
-        let is_buyer_maker: bool = is_buyer_maker_str.parse().ok()?;
-
-        let price = (price_f * POS_SCALE as f64) as u64;
-        let qty = (qty_f * POS_SCALE as f64) as u128;
-        let is_buy = !is_buyer_maker;
-
-        Some(MarketEvent::Trade {
-            timestamp_ms,
-            price,
-            qty,
-            is_buy,
-        })
     }
 }
 
