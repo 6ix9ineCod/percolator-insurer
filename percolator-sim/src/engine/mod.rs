@@ -68,7 +68,7 @@ impl SimEngine {
         self.last_oracle_price = oracle_price;
         let lps = self.accounts.lp_accounts();
         let per_lp = vault_seed / lps.len() as u128;
-        for &lp in &lps {
+        for &lp in lps {
             let _ = self.engine.deposit(lp, per_lp, 0);
         }
         if fund_seed > 0 {
@@ -123,10 +123,7 @@ impl SimEngine {
                 }
 
                 if slots_advanced > 0 {
-                    self.run_premium_accrual(now_slot);
-                    self.run_position_aging(now_slot);
-                    self.run_liquidation_sweep(now_slot);
-                    self.maybe_snapshot(now_slot, *timestamp_ms);
+                    self.run_slot_maintenance(now_slot, *timestamp_ms);
                 }
             }
             MarketEvent::BookUpdate { timestamp_ms, bids, asks } => {
@@ -143,21 +140,35 @@ impl SimEngine {
         Ok(())
     }
 
-    fn run_premium_accrual(&mut self, now_slot: u64) {
-        if now_slot < self.last_accrual_slot + 100 {
-            return;
+    fn run_slot_maintenance(&mut self, now_slot: u64, timestamp_ms: u64) {
+        let do_accrual = now_slot >= self.last_accrual_slot + 100;
+        if do_accrual {
+            self.last_accrual_slot = now_slot;
         }
-        self.last_accrual_slot = now_slot;
-        let positioned = self.accounts.positioned_accounts();
-        for idx in positioned {
-            let _ = self.engine.collect_accrued_premium(idx, now_slot);
-        }
-    }
 
-    fn run_position_aging(&mut self, now_slot: u64) {
-        let positioned = self.accounts.positioned_accounts();
-        for idx in positioned {
+        // Snapshot positioned indices into a stack buffer to avoid borrow conflicts
+        let mut active = [0u16; MAX_ACCOUNTS];
+        let mut active_count = 0usize;
+        for i in 0..60u16 {
+            if self.accounts.is_positioned(i) {
+                active[active_count] = i;
+                active_count += 1;
+            }
+        }
+
+        let lps = self.accounts.lp_accounts();
+        let lp_count = lps.len();
+        let mut lp_arr = [0u16; 4];
+        lp_arr[..lp_count].copy_from_slice(lps);
+
+        for ai in 0..active_count {
+            let idx = active[ai];
             let i = idx as usize;
+
+            if do_accrual {
+                let _ = self.engine.collect_accrued_premium(idx, now_slot);
+            }
+
             if self.position_age[i] == 0 {
                 self.position_age[i] = now_slot;
             }
@@ -165,37 +176,38 @@ impl SimEngine {
             if age >= self.max_position_slots {
                 let pos = self.engine.engine.try_effective_pos_q(i).unwrap_or(0);
                 if pos != 0 {
-                    let lp = self.accounts.lp_accounts()[0];
-                    let size_q = pos.unsigned_abs() as i128;
+                    let abs_pos = pos.unsigned_abs().min(i128::MAX as u128) as i128;
+                    let lp = lp_arr[i % lp_count];
                     let (a, b) = if pos > 0 { (lp, idx) } else { (idx, lp) };
-                    let _ = self.engine.execute_trade(
+                    if self.engine.execute_trade(
                         a, b, self.last_oracle_price, now_slot,
-                        size_q, self.last_oracle_price, 0, 0, 100, None,
-                    );
+                        abs_pos, self.last_oracle_price, 0, 0, 100, None,
+                    ).is_err() {
+                        continue;
+                    }
                 }
                 self.position_age[i] = 0;
                 self.accounts.mark_flat(idx);
                 self.accounts.release_trade_account(idx);
+                continue;
             }
-        }
-    }
 
-    fn run_liquidation_sweep(&mut self, now_slot: u64) {
-        let positioned = self.accounts.positioned_accounts();
-        for idx in positioned {
             match self.engine.liquidate(
                 idx, now_slot, self.last_oracle_price,
                 LiquidationPolicy::FullClose, 0, 0, 100, None,
             ) {
                 Ok(true) => {
-                    let capital = self.engine.engine.accounts[idx as usize].capital.get();
+                    let capital = self.engine.engine.accounts[i].capital.get();
                     self.metrics.record_liquidation(now_slot, capital);
+                    self.position_age[i] = 0;
                     self.accounts.mark_flat(idx);
                     self.accounts.release_trade_account(idx);
                 }
                 _ => {}
             }
         }
+
+        self.maybe_snapshot(now_slot, timestamp_ms);
     }
 
     fn maybe_snapshot(&mut self, slot: u64, timestamp_ms: u64) {

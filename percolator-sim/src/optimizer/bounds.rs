@@ -20,14 +20,13 @@ impl ParamBounds {
 
 pub fn default_param_bounds() -> Vec<ParamBounds> {
     vec![
-        ParamBounds::new(10.0, 1000.0),       // base_rate_per_slot
-        ParamBounds::new(1.0, 3.0),           // leverage_exponent_num
-        ParamBounds::new(1.0, 2.0),           // leverage_exponent_den
-        ParamBounds::new(54000.0, 432000.0),  // min_commitment_slots
-        ParamBounds::new(2000.0, 8000.0),     // crowding_cap
-        ParamBounds::new(1500.0, 5000.0),     // oi_vault_mult_max
-        ParamBounds::new(2000.0, 10000.0),    // pool_health_mult_max
-        ParamBounds::new(1.0, 100.0),         // min_premium_per_slot
+        ParamBounds::new(10.0, 1000.0),       // [0] base_rate_per_slot
+        ParamBounds::new(1.0, 3.0),           // [1] leverage_exponent (as float, converted to rational /4)
+        ParamBounds::new(54000.0, 432000.0),  // [2] min_commitment_slots
+        ParamBounds::new(2000.0, 8000.0),     // [3] crowding_cap
+        ParamBounds::new(1500.0, 5000.0),     // [4] oi_vault_mult_max
+        ParamBounds::new(2000.0, 10000.0),    // [5] pool_health_mult_max
+        ParamBounds::new(1.0, 100.0),         // [6] min_premium_per_slot
     ]
 }
 
@@ -56,7 +55,7 @@ mod tests {
     #[test]
     fn default_bounds_for_all_params() {
         let bounds = default_param_bounds();
-        assert_eq!(bounds.len(), 8);
+        assert_eq!(bounds.len(), 7);
         for b in &bounds {
             assert!(b.min < b.max);
         }

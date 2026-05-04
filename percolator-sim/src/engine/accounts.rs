@@ -6,14 +6,21 @@ pub struct AccountManager {
     free_queue: Vec<u16>,
     positioned: Vec<bool>,
     next_robin: usize,
+    lp_cache: [u16; 4],
+    positioned_buf: Vec<u16>,
 }
 
 impl AccountManager {
     pub fn new(trade_accounts: u16, lp_accounts: u16) -> Self {
         assert!((trade_accounts + lp_accounts) as usize <= MAX_ACCOUNTS);
+        assert!(lp_accounts <= 4);
         let mut free_queue = Vec::with_capacity(trade_accounts as usize);
         for i in 0..trade_accounts {
             free_queue.push(i);
+        }
+        let mut lp_cache = [0u16; 4];
+        for i in 0..lp_accounts {
+            lp_cache[i as usize] = trade_accounts + i;
         }
         Self {
             trade_count: trade_accounts,
@@ -21,6 +28,8 @@ impl AccountManager {
             free_queue,
             positioned: vec![false; MAX_ACCOUNTS],
             next_robin: 0,
+            lp_cache,
+            positioned_buf: Vec::with_capacity(trade_accounts as usize),
         }
     }
 
@@ -44,8 +53,8 @@ impl AccountManager {
         }
     }
 
-    pub fn lp_accounts(&self) -> Vec<u16> {
-        (self.trade_count..self.trade_count + self.lp_count).collect()
+    pub fn lp_accounts(&self) -> &[u16] {
+        &self.lp_cache[..self.lp_count as usize]
     }
 
     pub fn mark_positioned(&mut self, idx: u16) {
@@ -64,10 +73,14 @@ impl AccountManager {
         self.positioned.get(idx as usize).copied().unwrap_or(false)
     }
 
-    pub fn positioned_accounts(&self) -> Vec<u16> {
-        (0..self.trade_count)
-            .filter(|&i| self.positioned[i as usize])
-            .collect()
+    pub fn positioned_accounts(&mut self) -> &[u16] {
+        self.positioned_buf.clear();
+        for i in 0..self.trade_count {
+            if self.positioned[i as usize] {
+                self.positioned_buf.push(i);
+            }
+        }
+        &self.positioned_buf
     }
 
     pub fn free_count(&self) -> usize {
@@ -107,7 +120,7 @@ mod tests {
     fn lp_accounts_separate() {
         let am = AccountManager::new(60, 4);
         let lps = am.lp_accounts();
-        assert_eq!(lps, vec![60, 61, 62, 63]);
+        assert_eq!(lps, &[60, 61, 62, 63]);
     }
 
     #[test]
@@ -115,7 +128,7 @@ mod tests {
         let mut am = AccountManager::new(60, 4);
         am.allocate_trade_account();
         am.mark_positioned(0);
-        assert_eq!(am.positioned_accounts(), vec![0]);
+        assert_eq!(am.positioned_accounts(), &[0]);
         am.mark_flat(0);
         assert!(am.positioned_accounts().is_empty());
     }

@@ -69,7 +69,7 @@ where
 
     for iter in 0..max_iter {
         let mut order: Vec<usize> = (0..=n).collect();
-        order.sort_by(|&a, &b| scores[b].partial_cmp(&scores[a]).unwrap());
+        order.sort_by(|&a, &b| scores[b].partial_cmp(&scores[a]).unwrap_or(std::cmp::Ordering::Equal));
 
         let best_idx = order[0];
         let worst_idx = order[n];

@@ -29,28 +29,45 @@ struct Args {
     slots: u64,
 }
 
+fn rational_from_float(x: f64) -> (u64, u64) {
+    let denom = 4u64;
+    let numer = (x * denom as f64).round().max(1.0) as u64;
+    let g = gcd(numer, denom);
+    (numer / g, denom / g)
+}
+
+fn gcd(mut a: u64, mut b: u64) -> u64 {
+    while b != 0 {
+        let t = b;
+        b = a % b;
+        a = t;
+    }
+    a.max(1)
+}
+
 fn params_from_vec(v: &[f64]) -> PremiumParams {
+    let (exp_num, exp_den) = rational_from_float(v[1]);
     PremiumParams {
-        base_rate_per_slot: v[0] as u128,
-        leverage_exponent_num: v[1] as u64,
-        leverage_exponent_den: v[2] as u64,
-        min_commitment_slots: v[3] as u64,
+        base_rate_per_slot: v[0].round().max(1.0) as u128,
+        leverage_exponent_num: exp_num,
+        leverage_exponent_den: exp_den,
+        min_commitment_slots: v[2].round().max(1.0) as u64,
         crowding_low_ratio_num: 1500,
         crowding_low_ratio_den: 1000,
         crowding_high_ratio_num: 5000,
         crowding_high_ratio_den: 1000,
-        crowding_cap: v[4] as u128,
+        crowding_cap: v[3].round().max(1.0) as u128,
         oi_vault_floor_ratio_num: 1,
         oi_vault_floor_ratio_den: 1,
         oi_vault_cap_ratio_num: 5,
         oi_vault_cap_ratio_den: 1,
-        oi_vault_mult_max: v[5] as u128,
+        oi_vault_mult_max: v[4].round().max(1.0) as u128,
         pool_health_low_num: 1,
         pool_health_low_den: 100,
         pool_health_high_num: 5,
         pool_health_high_den: 100,
-        pool_health_mult_max: v[6] as u128,
-        min_premium_per_slot: v[7] as u128,
+        pool_health_mult_max: v[5].round().max(1.0) as u128,
+        min_premium_per_slot: v[6].round().max(1.0) as u128,
     }
 }
 
