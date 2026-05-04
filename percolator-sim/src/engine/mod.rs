@@ -72,8 +72,7 @@ impl SimEngine {
             let _ = self.engine.deposit(lp, per_lp, 0);
         }
         if fund_seed > 0 {
-            let current = self.engine.engine.insurance_fund.balance.get();
-            self.engine.engine.insurance_fund.balance = U128::new(current + fund_seed);
+            let _ = self.engine.engine.top_up_insurance_fund(fund_seed, 0);
         }
     }
 

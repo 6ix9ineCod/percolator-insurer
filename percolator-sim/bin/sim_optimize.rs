@@ -25,6 +25,8 @@ struct Args {
     seed: Option<u64>,
     #[arg(long, default_value_t = 0)]
     fund_seed: u128,
+    #[arg(long, default_value_t = u64::MAX)]
+    slots: u64,
 }
 
 fn params_from_vec(v: &[f64]) -> PremiumParams {
@@ -52,7 +54,7 @@ fn params_from_vec(v: &[f64]) -> PremiumParams {
     }
 }
 
-fn run_sim(data_path: &PathBuf, params: PremiumParams, budget_cap: f64, fund_seed: u128) -> f64 {
+fn run_sim(data_path: &PathBuf, params: PremiumParams, budget_cap: f64, fund_seed: u128, max_slots: u64) -> f64 {
     let init_price: u64 = 50_000 * POS_SCALE as u64;
     let vault_seed: u128 = 10_000_000_000;
 
@@ -66,6 +68,9 @@ fn run_sim(data_path: &PathBuf, params: PremiumParams, budget_cap: f64, fund_see
     };
 
     while let Some(event) = source.next_event() {
+        if engine.clock.current_slot() >= max_slots {
+            break;
+        }
         let _ = engine.process_event(&event);
     }
 
@@ -83,8 +88,11 @@ fn run_sim(data_path: &PathBuf, params: PremiumParams, budget_cap: f64, fund_see
         return f64::NEG_INFINITY;
     }
 
+    let haircuts = engine.metrics.haircut_activations();
     let surplus = if fund_end >= fund_start { fund_end - fund_start } else { 0 };
-    surplus as f64 / total_notional as f64
+    let base_score = surplus as f64 / total_notional as f64;
+    // Each haircut activation halves the score
+    base_score * (0.5_f64).powi(haircuts as i32)
 }
 
 fn main() {
@@ -96,9 +104,10 @@ fn main() {
     let data_path = args.data.clone();
     let budget = args.budget_cap;
 
+    let max_slots = args.slots;
     let result = nelder_mead(
         &bounds,
-        |p| run_sim(&data_path, params_from_vec(p), budget, args.fund_seed),
+        |p| run_sim(&data_path, params_from_vec(p), budget, args.fund_seed, max_slots),
         args.max_iter,
         50,
         args.seed,
@@ -115,6 +124,9 @@ fn main() {
 
     if let Ok(mut source) = BinanceTradeSource::from_path(&args.data) {
         while let Some(event) = source.next_event() {
+            if engine.clock.current_slot() >= max_slots {
+                break;
+            }
             let _ = engine.process_event(&event);
         }
     }
