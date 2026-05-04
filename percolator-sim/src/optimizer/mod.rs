@@ -3,11 +3,13 @@ pub mod rate_limit;
 pub mod objective;
 
 use bounds::ParamBounds;
+use std::time::Instant;
 
 pub struct OptimizeResult {
     pub best_params: Vec<f64>,
     pub best_score: f64,
     pub iterations: u32,
+    pub elapsed_secs: f64,
 }
 
 pub fn nelder_mead<F>(
@@ -21,6 +23,8 @@ where
     F: Fn(&[f64]) -> f64,
 {
     let n = bounds.len();
+    let start_time = Instant::now();
+    let mut eval_count = 0u32;
     let mut simplex: Vec<Vec<f64>> = Vec::with_capacity(n + 1);
 
     let mut rng_state = seed.unwrap_or(42);
@@ -44,7 +48,15 @@ where
         simplex.push(point);
     }
 
-    let mut scores: Vec<f64> = simplex.iter().map(|p| evaluate(p)).collect();
+    let mut scores: Vec<f64> = Vec::with_capacity(n + 1);
+    for (i, point) in simplex.iter().enumerate() {
+        let eval_start = Instant::now();
+        let s = evaluate(point);
+        eval_count += 1;
+        let eval_secs = eval_start.elapsed().as_secs_f64();
+        eprintln!("  simplex {}/{}: score = {:.10} ({:.1}s)", i + 1, n + 1, s, eval_secs);
+        scores.push(s);
+    }
     let mut best_score = f64::NEG_INFINITY;
     let mut best_params = simplex[0].clone();
     let mut stale_count = 0u32;
@@ -67,15 +79,30 @@ where
             best_score = scores[best_idx];
             best_params = simplex[best_idx].clone();
             stale_count = 0;
+            let elapsed = start_time.elapsed().as_secs_f64();
+            eprintln!(
+                "  iter {}/{}: NEW BEST = {:.10} | evals={} | elapsed={:.0}s | params={:?}",
+                iter, max_iter, best_score, eval_count, elapsed, &best_params
+            );
         } else {
             stale_count += 1;
+            if stale_count % 5 == 0 {
+                let elapsed = start_time.elapsed().as_secs_f64();
+                eprintln!(
+                    "  iter {}/{}: stale={}/{} | evals={} | elapsed={:.0}s",
+                    iter, max_iter, stale_count, stale_limit, eval_count, elapsed
+                );
+            }
         }
 
         if stale_count >= stale_limit {
+            let elapsed = start_time.elapsed().as_secs_f64();
+            eprintln!("  converged: stale limit reached at iter {} ({:.0}s, {} evals)", iter, elapsed, eval_count);
             return OptimizeResult {
                 best_params,
                 best_score,
                 iterations: iter,
+                elapsed_secs: elapsed,
             };
         }
 
@@ -87,10 +114,13 @@ where
         }).fold(0.0f64, f64::max);
 
         if diameter < 0.01 {
+            let elapsed = start_time.elapsed().as_secs_f64();
+            eprintln!("  converged: diameter < 0.01 at iter {} ({:.0}s, {} evals)", iter, elapsed, eval_count);
             return OptimizeResult {
                 best_params,
                 best_score,
                 iterations: iter,
+                elapsed_secs: elapsed,
             };
         }
 
@@ -110,6 +140,7 @@ where
             .collect();
         clamp_point(&mut reflected);
         let reflected_score = evaluate(&reflected);
+        eval_count += 1;
 
         if reflected_score > scores[second_worst_idx] && reflected_score <= scores[best_idx] {
             simplex[worst_idx] = reflected;
@@ -124,6 +155,7 @@ where
                 .collect();
             clamp_point(&mut expanded);
             let expanded_score = evaluate(&expanded);
+            eval_count += 1;
             if expanded_score > reflected_score {
                 simplex[worst_idx] = expanded;
                 scores[worst_idx] = expanded_score;
@@ -140,6 +172,7 @@ where
             .collect();
         clamp_point(&mut contracted);
         let contracted_score = evaluate(&contracted);
+        eval_count += 1;
 
         if contracted_score > scores[worst_idx] {
             simplex[worst_idx] = contracted;
@@ -155,13 +188,17 @@ where
                 simplex[idx][d] = bounds[d].clamp(simplex[idx][d]);
             }
             scores[idx] = evaluate(&simplex[idx]);
+            eval_count += 1;
         }
     }
 
+    let elapsed = start_time.elapsed().as_secs_f64();
+    eprintln!("  finished: max iterations reached ({:.0}s, {} evals)", elapsed, eval_count);
     OptimizeResult {
         best_params,
         best_score,
         iterations: max_iter,
+        elapsed_secs: elapsed,
     }
 }
 

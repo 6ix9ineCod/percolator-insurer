@@ -21,6 +21,9 @@ pub struct SimEngine {
     pub signal: FlowSignal,
     last_oracle_price: u64,
     last_snapshot_slot: u64,
+    last_accrual_slot: u64,
+    position_age: [u64; MAX_ACCOUNTS],
+    max_position_slots: u64,
 }
 
 impl SimEngine {
@@ -55,15 +58,22 @@ impl SimEngine {
             signal: FlowSignal::new(),
             last_oracle_price: 1,
             last_snapshot_slot: 0,
+            last_accrual_slot: 0,
+            position_age: [0u64; MAX_ACCOUNTS],
+            max_position_slots: 54_000, // ~6 hours at 400ms slots
         }
     }
 
-    pub fn initialize(&mut self, oracle_price: u64, vault_seed: u128) {
+    pub fn initialize(&mut self, oracle_price: u64, vault_seed: u128, fund_seed: u128) {
         self.last_oracle_price = oracle_price;
         let lps = self.accounts.lp_accounts();
         let per_lp = vault_seed / lps.len() as u128;
         for &lp in &lps {
             let _ = self.engine.deposit(lp, per_lp, 0);
+        }
+        if fund_seed > 0 {
+            let current = self.engine.engine.insurance_fund.balance.get();
+            self.engine.engine.insurance_fund.balance = U128::new(current + fund_seed);
         }
     }
 
@@ -99,6 +109,7 @@ impl SimEngine {
                             ) {
                                 Ok(()) => {
                                     self.accounts.mark_positioned(acct_idx);
+                                    self.position_age[acct_idx as usize] = now_slot;
                                 }
                                 Err(_) => {
                                     self.accounts.release_trade_account(acct_idx);
@@ -113,6 +124,8 @@ impl SimEngine {
                 }
 
                 if slots_advanced > 0 {
+                    self.run_premium_accrual(now_slot);
+                    self.run_position_aging(now_slot);
                     self.run_liquidation_sweep(now_slot);
                     self.maybe_snapshot(now_slot, *timestamp_ms);
                 }
@@ -129,6 +142,43 @@ impl SimEngine {
             }
         }
         Ok(())
+    }
+
+    fn run_premium_accrual(&mut self, now_slot: u64) {
+        if now_slot < self.last_accrual_slot + 100 {
+            return;
+        }
+        self.last_accrual_slot = now_slot;
+        let positioned = self.accounts.positioned_accounts();
+        for idx in positioned {
+            let _ = self.engine.collect_accrued_premium(idx, now_slot);
+        }
+    }
+
+    fn run_position_aging(&mut self, now_slot: u64) {
+        let positioned = self.accounts.positioned_accounts();
+        for idx in positioned {
+            let i = idx as usize;
+            if self.position_age[i] == 0 {
+                self.position_age[i] = now_slot;
+            }
+            let age = now_slot.saturating_sub(self.position_age[i]);
+            if age >= self.max_position_slots {
+                let pos = self.engine.engine.try_effective_pos_q(i).unwrap_or(0);
+                if pos != 0 {
+                    let lp = self.accounts.lp_accounts()[0];
+                    let size_q = pos.unsigned_abs() as i128;
+                    let (a, b) = if pos > 0 { (lp, idx) } else { (idx, lp) };
+                    let _ = self.engine.execute_trade(
+                        a, b, self.last_oracle_price, now_slot,
+                        size_q, self.last_oracle_price, 0, 0, 100, None,
+                    );
+                }
+                self.position_age[i] = 0;
+                self.accounts.mark_flat(idx);
+                self.accounts.release_trade_account(idx);
+            }
+        }
     }
 
     fn run_liquidation_sweep(&mut self, now_slot: u64) {
@@ -239,7 +289,7 @@ mod tests {
     fn process_trade_event_opens_position() {
         let mut se = SimEngine::new(test_premium_params(), 400, 100);
         let price: u64 = 50_000 * POS_SCALE as u64;
-        se.initialize(price, 1_000_000_000);
+        se.initialize(price, 1_000_000_000, 0);
         let event = MarketEvent::Trade {
             timestamp_ms: 400,
             price,

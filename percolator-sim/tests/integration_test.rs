@@ -31,7 +31,7 @@ fn test_premium_params() -> PremiumParams {
 fn full_replay_synthetic_data() {
     let price: u64 = 50_000 * POS_SCALE as u64;
     let mut engine = SimEngine::new(test_premium_params(), 400, 100);
-    engine.initialize(price, 10_000_000_000);
+    engine.initialize(price, 10_000_000_000, 0);
 
     let events: Vec<MarketEvent> = (0..100).map(|i| {
         MarketEvent::Trade {
@@ -57,7 +57,7 @@ fn report_generation() {
 
     let price: u64 = 50_000 * POS_SCALE as u64;
     let mut engine = SimEngine::new(test_premium_params(), 400, 100);
-    engine.initialize(price, 10_000_000_000);
+    engine.initialize(price, 10_000_000_000, 0);
     let fund_start = engine.fund_balance();
 
     for i in 0..50 {

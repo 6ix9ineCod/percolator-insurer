@@ -23,6 +23,8 @@ struct Args {
     accounts: u16,
     #[arg(long, default_value_t = 0.1)]
     budget_cap: f64,
+    #[arg(long, default_value_t = 0)]
+    fund_seed: u128,
 }
 
 fn default_premium_params() -> PremiumParams {
@@ -65,7 +67,7 @@ fn main() {
     let vault_seed: u128 = 10_000_000_000;
 
     let mut engine = SimEngine::new(params, 400, 100);
-    engine.initialize(init_price, vault_seed);
+    engine.initialize(init_price, vault_seed, args.fund_seed);
 
     let fund_start = engine.fund_balance();
 

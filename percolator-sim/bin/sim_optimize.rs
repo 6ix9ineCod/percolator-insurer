@@ -23,6 +23,8 @@ struct Args {
     output: Option<PathBuf>,
     #[arg(long)]
     seed: Option<u64>,
+    #[arg(long, default_value_t = 0)]
+    fund_seed: u128,
 }
 
 fn params_from_vec(v: &[f64]) -> PremiumParams {
@@ -50,12 +52,12 @@ fn params_from_vec(v: &[f64]) -> PremiumParams {
     }
 }
 
-fn run_sim(data_path: &PathBuf, params: PremiumParams, budget_cap: f64) -> f64 {
+fn run_sim(data_path: &PathBuf, params: PremiumParams, budget_cap: f64, fund_seed: u128) -> f64 {
     let init_price: u64 = 50_000 * POS_SCALE as u64;
     let vault_seed: u128 = 10_000_000_000;
 
     let mut engine = SimEngine::new(params, 400, 100);
-    engine.initialize(init_price, vault_seed);
+    engine.initialize(init_price, vault_seed, fund_seed);
     let fund_start = engine.fund_balance();
 
     let mut source = match BinanceTradeSource::from_path(data_path) {
@@ -96,19 +98,19 @@ fn main() {
 
     let result = nelder_mead(
         &bounds,
-        |p| run_sim(&data_path, params_from_vec(p), budget),
+        |p| run_sim(&data_path, params_from_vec(p), budget, args.fund_seed),
         args.max_iter,
         50,
         args.seed,
     );
 
     let best_params = params_from_vec(&result.best_params);
-    eprintln!("  optimizer done: {} iterations, best score = {:.8}", result.iterations, result.best_score);
+    eprintln!("  optimizer done: {} iterations, {:.0}s elapsed, best score = {:.8}", result.iterations, result.elapsed_secs, result.best_score);
     eprintln!("  best params: {:?}", result.best_params);
 
     let init_price: u64 = 50_000 * POS_SCALE as u64;
     let mut engine = SimEngine::new(best_params, 400, 100);
-    engine.initialize(init_price, 10_000_000_000);
+    engine.initialize(init_price, 10_000_000_000, args.fund_seed);
     let fund_start = engine.fund_balance();
 
     if let Ok(mut source) = BinanceTradeSource::from_path(&args.data) {

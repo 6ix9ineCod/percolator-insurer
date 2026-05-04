@@ -63,7 +63,7 @@ async fn main() {
 
     let init_price: u64 = 50_000 * POS_SCALE as u64;
     let mut engine = SimEngine::new(params, 400, 100);
-    engine.initialize(init_price, 10_000_000_000);
+    engine.initialize(init_price, 10_000_000_000, 0);
     let fund_start = engine.fund_balance();
 
     let (tx, mut rx) = mpsc::channel(10_000);
