@@ -39,3 +39,4 @@ desktop.ini
 .env
 .env.local
 test-ledger/
+data/*.csv
