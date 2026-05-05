@@ -1,5 +1,6 @@
 use clap::Parser;
 use percolator_insurance::PremiumParams;
+use percolator_sim::config::SimConfig;
 use percolator_sim::data::binance::BinanceTradeSource;
 use percolator_sim::engine::SimEngine;
 use percolator_sim::metrics::report::{generate_report, write_report, ReportConfig};
@@ -13,8 +14,10 @@ struct Args {
     data: PathBuf,
     #[arg(long, default_value = "binance-trades")]
     format: String,
-    #[arg(long)]
+    #[arg(long, group = "param_source")]
     params: Option<PathBuf>,
+    #[arg(long, group = "param_source")]
+    config: Option<PathBuf>,
     #[arg(long)]
     output: Option<PathBuf>,
     #[arg(long, default_value_t = u64::MAX)]
@@ -54,20 +57,34 @@ fn default_premium_params() -> PremiumParams {
 
 fn main() {
     let args = Args::parse();
+    let matches = <Args as clap::CommandFactory>::command().get_matches();
 
-    let params = if let Some(params_path) = &args.params {
-        let json = std::fs::read_to_string(params_path)
-            .expect("failed to read params file");
-        serde_json::from_str(&json).expect("failed to parse params JSON")
+    let (params, fund_seed, budget_cap) = if let Some(config_path) = &args.config {
+        let cfg = SimConfig::load(config_path).expect("failed to load config");
+        let fs = if matches.value_source("fund_seed") == Some(clap::parser::ValueSource::CommandLine) {
+            args.fund_seed
+        } else {
+            cfg.fund_seed
+        };
+        let bc = if matches.value_source("budget_cap") == Some(clap::parser::ValueSource::CommandLine) {
+            args.budget_cap
+        } else {
+            cfg.budget_cap
+        };
+        (cfg.premium_params, fs, bc)
+    } else if let Some(params_path) = &args.params {
+        let json = std::fs::read_to_string(params_path).expect("failed to read params file");
+        let p: PremiumParams = serde_json::from_str(&json).expect("failed to parse params JSON");
+        (p, args.fund_seed, args.budget_cap)
     } else {
-        default_premium_params()
+        (default_premium_params(), args.fund_seed, args.budget_cap)
     };
 
     let init_price: u64 = 50_000 * POS_SCALE as u64;
     let vault_seed: u128 = 10_000_000_000;
 
     let mut engine = SimEngine::new(params, 400, 100);
-    engine.initialize(init_price, vault_seed, args.fund_seed);
+    engine.initialize(init_price, vault_seed, fund_seed);
 
     let fund_start = engine.fund_balance();
 
@@ -102,7 +119,7 @@ fn main() {
             .map(|n| n.to_string_lossy().to_string())
             .unwrap_or_else(|| "replay".to_string()),
         params: engine.engine.premium_params,
-        budget_cap_pct: args.budget_cap,
+        budget_cap_pct: budget_cap,
         fund_start,
         fund_end,
         total_slots,
