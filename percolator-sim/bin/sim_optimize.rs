@@ -1,5 +1,6 @@
 use clap::Parser;
 use percolator_insurance::PremiumParams;
+use percolator_sim::config::SimConfig;
 use percolator_sim::data::binance::BinanceTradeSource;
 use percolator_sim::engine::SimEngine;
 use percolator_sim::metrics::report::{generate_report, write_report, ReportConfig};
@@ -11,10 +12,10 @@ use std::path::PathBuf;
 #[derive(Parser)]
 #[command(name = "sim-optimize", about = "Search for optimal PremiumParams")]
 struct Args {
-    #[arg(long)]
-    data: PathBuf,
-    #[arg(long, default_value = "binance-trades")]
-    format: String,
+    #[arg(long, group = "data_source")]
+    data: Option<PathBuf>,
+    #[arg(long, group = "data_source")]
+    data_dir: Option<PathBuf>,
     #[arg(long, default_value_t = 0.1)]
     budget_cap: f64,
     #[arg(long, default_value_t = 500)]
@@ -45,6 +46,32 @@ fn gcd(mut a: u64, mut b: u64) -> u64 {
     a.max(1)
 }
 
+fn collect_data_files(args: &Args) -> Vec<PathBuf> {
+    if let Some(dir) = &args.data_dir {
+        let mut files: Vec<PathBuf> = std::fs::read_dir(dir)
+            .expect("failed to read data directory")
+            .filter_map(|e| e.ok())
+            .map(|e| e.path())
+            .filter(|p| p.extension().map_or(false, |ext| ext == "csv"))
+            .collect();
+        files.sort();
+        if files.is_empty() {
+            eprintln!("  ERROR: no CSV files found in {}", dir.display());
+            std::process::exit(1);
+        }
+        eprintln!("  found {} data files in {}", files.len(), dir.display());
+        for f in &files {
+            eprintln!("    - {}", f.file_name().unwrap_or_default().to_string_lossy());
+        }
+        files
+    } else if let Some(path) = &args.data {
+        vec![path.clone()]
+    } else {
+        eprintln!("  ERROR: must provide --data or --data-dir");
+        std::process::exit(1);
+    }
+}
+
 fn params_from_vec(v: &[f64]) -> PremiumParams {
     let (exp_num, exp_den) = rational_from_float(v[1]);
     PremiumParams {
@@ -71,7 +98,7 @@ fn params_from_vec(v: &[f64]) -> PremiumParams {
     }
 }
 
-fn run_sim(data_path: &PathBuf, params: PremiumParams, budget_cap: f64, fund_seed: u128, max_slots: u64) -> f64 {
+fn run_sim_single(data_path: &PathBuf, params: PremiumParams, budget_cap: f64, fund_seed: u128, max_slots: u64) -> f64 {
     let init_price: u64 = 50_000 * POS_SCALE as u64;
     let vault_seed: u128 = 10_000_000_000;
 
@@ -108,38 +135,68 @@ fn run_sim(data_path: &PathBuf, params: PremiumParams, budget_cap: f64, fund_see
     let haircuts = engine.metrics.haircut_activations();
     let surplus = if fund_end >= fund_start { fund_end - fund_start } else { 0 };
     let base_score = surplus as f64 / total_notional as f64;
-    // Each haircut activation halves the score
     base_score * (0.5_f64).powi(haircuts as i32)
+}
+
+fn run_sim_multi(data_files: &[PathBuf], params: PremiumParams, budget_cap: f64, fund_seed: u128, max_slots: u64) -> f64 {
+    let mut min_score = f64::INFINITY;
+    for path in data_files {
+        let score = run_sim_single(path, params, budget_cap, fund_seed, max_slots);
+        if score == f64::NEG_INFINITY {
+            return f64::NEG_INFINITY;
+        }
+        if score < min_score {
+            min_score = score;
+        }
+    }
+    if min_score == f64::INFINITY {
+        return 0.0;
+    }
+    min_score
 }
 
 fn main() {
     let args = Args::parse();
     let bounds = default_param_bounds();
+    let data_files = collect_data_files(&args);
+    let num_files = data_files.len();
 
-    eprintln!("  starting optimizer: {} max iterations", args.max_iter);
+    eprintln!("  starting optimizer: {} max iterations, {} data file(s), min-scoring",
+        args.max_iter, num_files);
 
-    let data_path = args.data.clone();
     let budget = args.budget_cap;
-
+    let fund_seed = args.fund_seed;
     let max_slots = args.slots;
+
     let result = nelder_mead(
         &bounds,
-        |p| run_sim(&data_path, params_from_vec(p), budget, args.fund_seed, max_slots),
+        |p| run_sim_multi(&data_files, params_from_vec(p), budget, fund_seed, max_slots),
         args.max_iter,
         50,
         args.seed,
     );
 
     let best_params = params_from_vec(&result.best_params);
-    eprintln!("  optimizer done: {} iterations, {:.0}s elapsed, best score = {:.8}", result.iterations, result.elapsed_secs, result.best_score);
+    eprintln!("  optimizer done: {} iterations, {:.0}s elapsed, best score = {:.10}",
+        result.iterations, result.elapsed_secs, result.best_score);
     eprintln!("  best params: {:?}", result.best_params);
 
+    let sim_config = SimConfig {
+        premium_params: best_params,
+        fund_seed,
+        budget_cap: budget,
+    };
+    let config_path = PathBuf::from("output/sim-config.json");
+    sim_config.save(&config_path).expect("failed to save sim-config.json");
+    eprintln!("  config saved to {}", config_path.display());
+
+    let report_data = data_files.first().unwrap();
     let init_price: u64 = 50_000 * POS_SCALE as u64;
     let mut engine = SimEngine::new(best_params, 400, 100);
-    engine.initialize(init_price, 10_000_000_000, args.fund_seed);
+    engine.initialize(init_price, 10_000_000_000, fund_seed);
     let fund_start = engine.fund_balance();
 
-    if let Ok(mut source) = BinanceTradeSource::from_path(&args.data) {
+    if let Ok(mut source) = BinanceTradeSource::from_path(report_data) {
         while let Some(event) = source.next_event() {
             if engine.clock.current_slot() >= max_slots {
                 break;
@@ -151,7 +208,7 @@ fn main() {
     let config = ReportConfig {
         scenario_name: format!("optimize-best-{}", result.iterations),
         params: engine.engine.premium_params,
-        budget_cap_pct: args.budget_cap,
+        budget_cap_pct: budget,
         fund_start,
         fund_end: engine.fund_balance(),
         total_slots: engine.clock.current_slot(),
