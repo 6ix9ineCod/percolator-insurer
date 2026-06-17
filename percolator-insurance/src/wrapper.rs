@@ -4,6 +4,73 @@
 //! 1. Collect any accrued premiums owed by the account
 //! 2. Execute the Percolator operation
 //! 3. Reconcile pool with insurance fund balance
+//!
+//! ─────────────────────────────────────────────────────────────────────────
+//! WS2 Task 1 — recurring-fee API: WHY WE DO NOT USE
+//! `sync_account_fee_to_slot_not_atomic`, AND WHY THAT IS DOUBLE-CHARGE-SAFE
+//! ─────────────────────────────────────────────────────────────────────────
+//!
+//! The engine exposes two fee entrypoints, and the README says recurring
+//! time-based fees "MUST" be synced via `sync_account_fee_to_slot_not_atomic`.
+//! We deliberately keep using the one-shot `charge_account_fee_not_atomic`
+//! with the crate's own `last_premium_slot` bookkeeping. Justification:
+//!
+//! 1. BOTH paths bottom out in the same primitive. `charge_account_fee_not_atomic`
+//!    calls `charge_fee_to_insurance(idx, fee_abs)`. `sync_account_fee_to_slot_not_atomic`
+//!    computes `fee_abs = fee_rate_per_slot * dt` (capped at MAX_PROTOCOL_FEE_ABS)
+//!    and then calls the SAME `charge_fee_to_insurance(idx, fee_abs)`. So the
+//!    actual money movement, the capital-cap behaviour, and the insurance-fund
+//!    delta are identical. There is no economic difference in WHAT reaches the
+//!    fund — only in WHO owns the time anchor.
+//!
+//! 2. The recurring API charges a FLAT `rate * dt`. Our premium is NOT flat:
+//!    `compute_premium_per_slot` re-prices every accrual from the live risk
+//!    index (crowding, oi/vault, pool-health, volatility, leverage-tail). A
+//!    single `fee_rate_per_slot` cannot express a rate that changes within the
+//!    interval. Migrating would force us to either (a) freeze the rate across
+//!    the interval — losing the risk responsiveness that is the entire point of
+//!    this crate — or (b) call sync once per slot, which is gas-prohibitive and
+//!    still re-prices identically to what we already do. The parallel
+//!    bookkeeping is the correct shape for a dynamic rate.
+//!
+//! 3. DOUBLE-CHARGE SAFETY. The only way the recurring API and our path could
+//!    double-charge is if BOTH advanced an overlapping interval against the same
+//!    account. They cannot, because they use DISJOINT anchors. The engine's
+//!    recurring path owns `Account::last_fee_slot` and charges over
+//!    `[last_fee_slot, anchor]`; this crate owns
+//!    `AccountPremiumState::last_premium_slot` and charges over
+//!    `[last_premium_slot, now_slot]`. These are two SEPARATE checkpoints. This
+//!    crate NEVER calls `sync_account_fee_to_slot_not_atomic` (grep-verifiable:
+//!    the symbol does not appear anywhere in this crate), so `last_fee_slot` is
+//!    only ever advanced by the engine's internal one-shot path — which charges
+//!    instantaneously and does not back-charge an interval. Therefore no
+//!    interval is ever charged twice: our path is the sole driver of
+//!    `last_premium_slot`, and it advances it monotonically on every collection
+//!    (including the zero-premium early-returns), so an interval `[a, b]` is
+//!    consumed exactly once. The integrator MUST NOT also enable engine
+//!    recurring fees on these same accounts; doing so would be a configuration
+//!    error (two independent rate schedules), not a flaw in this path.
+//!
+//! DECISION: keep the one-shot + `last_premium_slot` design. Migration is
+//! strictly higher risk (loses dynamic pricing, identical fund effect) with no
+//! offsetting benefit.
+//!
+//! ─────────────────────────────────────────────────────────────────────────
+//! WS2 Task 2 — discarded-result (collection failure) policy
+//! ─────────────────────────────────────────────────────────────────────────
+//!
+//! Wrapped ops collect accrued premium BEFORE the underlying engine call. The
+//! prior code did `let _ = self.collect_accrued_premium(..)`, swallowing any
+//! error. New policy: PROPAGATE. A collection that returns `Err` means the
+//! engine refused the fee charge (e.g. wrong market mode, time-monotonicity
+//! violation, post-condition failure) — a real fault, not "insufficient
+//! capital" (which the engine reports as `Ok` with a capped delta, already
+//! handled by the actual-delta recording). We therefore surface the error and
+//! ABORT the wrapped op: it is unsafe to mutate position/capital on top of an
+//! engine that just rejected a fee touch for the same account. The
+//! capital-insufficient case is NOT a failure here and continues to return Ok,
+//! so this policy does not regress
+//! `test_pool_records_only_actual_collection_when_capital_insufficient`.
 
 use crate::pool::PremiumPool;
 use crate::premium::{compute_premium_per_slot, leverage_tail_surcharge};
@@ -69,6 +136,66 @@ pub struct PremiumParams {
     ///
     /// CALIBRATION REQUIRED: fit to the loss distribution (see above).
     pub leverage_tail_steepness: u128,
+
+    // ── WS2 Task 3: counter-cyclical collection cap (governance param) ───────
+    /// Safety buffer, in basis points of the account's current notional, that
+    /// a single premium collection (or commitment charge) must leave ABOVE the
+    /// account's maintenance-margin requirement.
+    ///
+    /// Motivation (actuarial review): under stress the `pool_health` multiplier
+    /// spikes premiums, and an uncapped collection can draw a near-maintenance
+    /// account down to its full remaining capital. That shrinks the very
+    /// liquidation buffer the fund relies on, manufacturing the socialized
+    /// deficits the pool must then cover — a pro-cyclical death spiral. This
+    /// guard caps each collection so post-charge maintenance equity stays at or
+    /// above `MM_req + notional * collection_maint_buffer_bps / 10_000`.
+    ///
+    /// The uncollected remainder is DROPPED (not deferred): the wrapper does not
+    /// carry premium debt, and `last_premium_slot` still advances so the same
+    /// interval is never re-charged. Dropping under stress is the conservative
+    /// choice — it protects the buffer that backs every other account.
+    ///
+    /// Default `0` = permissive (no buffer floor), preserving the prior
+    /// "charge up to available capital" behaviour. A production deployment
+    /// SHOULD set a nonzero buffer (e.g. 50–200 bps) sized to the worst-case
+    /// one-step price move so a single accrual can never tip an account into
+    /// liquidation it would otherwise have survived.
+    pub collection_maint_buffer_bps: u128,
+
+    // ── WS2 Task 4: compliance guards (governance params, opt-in) ────────────
+    /// Maximum tolerated divergence, in basis points, between a caller-supplied
+    /// `oracle_price` and the engine's last accrued price (`last_oracle_price`).
+    /// If `|oracle_price - last| * 10_000 / last > max_oracle_deviation_bps`,
+    /// the extraction-sensitive op is rejected with `OracleDivergence`.
+    ///
+    /// Default `0` = guard DISABLED (permissive). This is intentional: the
+    /// engine's own bounded-crank logic already clamps per-step price moves, so
+    /// the default keeps existing flows working. A production deployment SHOULD
+    /// set a bound (e.g. a few hundred bps) matched to the feed's expected jitter.
+    ///
+    // PRODUCTION NOTE: this is a coarse sanity clamp against gross divergence /
+    // stale marks only. Full oracle SOURCING — choosing a trustworthy feed,
+    // aggregating multiple sources, confidence-interval handling, TWAP/median
+    // filtering — remains the integrator's responsibility per the README.
+    pub max_oracle_deviation_bps: u64,
+    /// Maximum tolerated staleness, in slots, of the engine's last market
+    /// update (`current_slot - last_market_slot`) at the time an
+    /// extraction-sensitive op is attempted. `0` = guard DISABLED (permissive).
+    ///
+    // PRODUCTION NOTE: a real deployment must additionally validate the freshness
+    // of the EXTERNAL feed it sources `oracle_price` from; this guard only checks
+    // that the engine's internal mark was cranked recently.
+    pub max_oracle_staleness_slots: u64,
+    /// When `true`, every wrapped op that exposes an `*_authorized` entrypoint
+    /// requires the caller to present an authority matching the account's
+    /// claimed `owner` (or the account being unclaimed, owner == `[0u8; 32]`).
+    /// Default `false` = guard DISABLED (the plain entrypoints bypass the check).
+    ///
+    // PRODUCTION NOTE: this is only a hook. The engine NEVER reads `owner` for
+    // any spec-normative decision (margin/liquidation/fees). Real authorization —
+    // signature verification, PDA/seed checks, role policy — is the integrator's
+    // responsibility; this field merely gives a place to wire the gate.
+    pub require_authorization: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -247,6 +374,121 @@ impl InsuredRiskEngine {
         abs_pos.saturating_mul(self.engine.last_oracle_price as u128) / POS_SCALE
     }
 
+    // ====================================================================
+    // WS2 Task 3: counter-cyclical collection cap
+    // ====================================================================
+
+    /// Cap a requested premium charge so it cannot push account `idx` below its
+    /// maintenance-margin requirement plus the governance safety buffer.
+    ///
+    /// Returns the largest amount `<= requested` that leaves post-charge
+    /// maintenance equity at or above
+    /// `MM_req + notional * collection_maint_buffer_bps / 10_000`.
+    ///
+    /// Maintenance equity mirrors the engine exactly:
+    ///   `Eq_maint_raw = capital + pnl - fee_debt`  (account_equity_maint_raw)
+    ///   `MM_req       = max(notional * mm_bps / 10_000, min_nonzero_mm_req)`
+    /// A premium charge only reduces `capital`, so it reduces `Eq_maint_raw`
+    /// 1:1 (the engine routes the charge through capital first). The maximum
+    /// chargeable without breaching the floor is therefore
+    ///   `headroom = max(0, Eq_maint_raw - (MM_req + buffer))`.
+    ///
+    /// When `collection_maint_buffer_bps == 0` this returns `requested`
+    /// unchanged (permissive default — no behaviour change).
+    fn cap_premium_to_maint_buffer(&self, idx: usize, requested: u128) -> u128 {
+        let buffer_bps = self.premium_params.collection_maint_buffer_bps;
+        if buffer_bps == 0 || requested == 0 {
+            return requested;
+        }
+
+        let acct = &self.engine.accounts[idx];
+        let eq_maint_raw = self.engine.account_equity_maint_raw(acct);
+        if eq_maint_raw <= 0 {
+            // Already at/below zero maintenance equity — charge nothing more.
+            return 0;
+        }
+        let eq_maint = eq_maint_raw as u128;
+
+        let notional = self.account_notional(idx);
+        let proportional = notional
+            .saturating_mul(self.engine.params.maintenance_margin_bps as u128)
+            / 10_000;
+        let mm_req = core::cmp::max(proportional, self.engine.params.min_nonzero_mm_req);
+        let buffer = notional.saturating_mul(buffer_bps) / 10_000;
+        let floor = mm_req.saturating_add(buffer);
+
+        let headroom = eq_maint.saturating_sub(floor);
+        core::cmp::min(requested, headroom)
+    }
+
+    // ====================================================================
+    // WS2 Task 4: compliance guards (oracle sanity + authorization)
+    // ====================================================================
+
+    /// Reject a caller-supplied `oracle_price` that is stale or diverges beyond
+    /// the configured bound from the engine's last accrued price. No-op (Ok)
+    /// when both guards are disabled (the permissive default), so existing
+    /// callers are unaffected.
+    fn check_oracle_sanity(&self, oracle_price: u64, now_slot: u64) -> crate::Result<()> {
+        let pp = &self.premium_params;
+
+        // Staleness: how long since the engine last cranked its mark.
+        if pp.max_oracle_staleness_slots > 0 {
+            let last = self.engine.last_market_slot;
+            // now_slot is the slot the caller is acting at; staleness is the gap
+            // since the engine's mark was last refreshed.
+            let staleness = now_slot.saturating_sub(last);
+            if staleness > pp.max_oracle_staleness_slots {
+                return Err(InsuredError::OracleDivergence);
+            }
+        }
+
+        // Divergence: |oracle_price - last| / last in bps.
+        if pp.max_oracle_deviation_bps > 0 {
+            let last = self.engine.last_oracle_price as u128;
+            if last == 0 {
+                // No reference price yet — cannot bound divergence; reject
+                // conservatively when the guard is enabled.
+                return Err(InsuredError::OracleDivergence);
+            }
+            let p = oracle_price as u128;
+            let diff = p.abs_diff(last);
+            let diff_bps = diff.saturating_mul(10_000) / last;
+            if diff_bps > pp.max_oracle_deviation_bps as u128 {
+                return Err(InsuredError::OracleDivergence);
+            }
+        }
+        Ok(())
+    }
+
+    /// Enforce the optional authorization hook: when `require_authorization` is
+    /// set, the caller authority must match the account's claimed `owner`, or
+    /// the account must be unclaimed (`owner == [0u8; 32]`). No-op (Ok) when the
+    /// guard is disabled.
+    ///
+    /// `caller == None` means no authority was presented (the plain, non-
+    /// `*_authorized` entrypoints). With the guard enabled, a claimed account
+    /// then rejects — the integrator MUST route claimed-account calls through
+    /// the `*_authorized` entrypoints.
+    ///
+    // PRODUCTION NOTE: this is a structural hook only. The engine never reads
+    // `owner` for spec-normative decisions; binding `owner` to a real signer
+    // (signature/PDA verification) is the integrator's responsibility.
+    fn check_authorization(&self, idx: usize, caller: Option<&[u8; 32]>) -> crate::Result<()> {
+        if !self.premium_params.require_authorization {
+            return Ok(());
+        }
+        let owner = self.engine.accounts[idx].owner;
+        if owner == [0u8; 32] {
+            // Unclaimed account: nothing to authorize against.
+            return Ok(());
+        }
+        match caller {
+            Some(c) if &owner == c => Ok(()),
+            _ => Err(InsuredError::Unauthorized),
+        }
+    }
+
     pub fn collect_accrued_premium(
         &mut self,
         idx: u16,
@@ -293,20 +535,29 @@ impl InsuredRiskEngine {
         }
 
         if remaining > 0 {
-            // The engine caps the fee at the account's available capital and
-            // silently drops any excess (charge_fee_to_insurance), returning Ok
-            // even when capital is insufficient. Measure the actual insurance-
-            // fund delta and record only that — recording the requested amount
-            // would over-state the pool's claim on the fund.
-            let before = self.engine.insurance_fund.balance.get();
-            self.engine
-                .charge_account_fee_not_atomic(idx, remaining, now_slot)
-                .map_err(InsuredError::Risk)?;
-            let after = self.engine.insurance_fund.balance.get();
-            let actually_collected = after.saturating_sub(before);
-            if actually_collected > 0 {
-                self.pool.record_collection(actually_collected)?;
-                collected += actually_collected;
+            // WS2 Task 3: cap the capital-charging portion so collection cannot
+            // push the account below its maintenance + safety buffer. The
+            // prepaid drawdown above is pure wrapper accounting (no capital
+            // touched), so only this leg can erode the liquidation buffer. The
+            // uncollected remainder beyond the cap is DROPPED (see field doc).
+            let to_charge = self.cap_premium_to_maint_buffer(i, remaining);
+
+            if to_charge > 0 {
+                // The engine caps the fee at the account's available capital and
+                // silently drops any excess (charge_fee_to_insurance), returning
+                // Ok even when capital is insufficient. Measure the actual
+                // insurance-fund delta and record only that — recording the
+                // requested amount would over-state the pool's claim on the fund.
+                let before = self.engine.insurance_fund.balance.get();
+                self.engine
+                    .charge_account_fee_not_atomic(idx, to_charge, now_slot)
+                    .map_err(InsuredError::Risk)?;
+                let after = self.engine.insurance_fund.balance.get();
+                let actually_collected = after.saturating_sub(before);
+                if actually_collected > 0 {
+                    self.pool.record_collection(actually_collected)?;
+                    collected += actually_collected;
+                }
             }
         }
 
@@ -323,15 +574,45 @@ impl InsuredRiskEngine {
     // Wrapped Percolator operations
     // ====================================================================
 
+    /// Deposit without presenting a caller authority. With
+    /// `require_authorization` enabled this is rejected for claimed accounts —
+    /// use [`deposit_authorized`](Self::deposit_authorized).
     pub fn deposit(
         &mut self,
         idx: u16,
         amount: u128,
         now_slot: u64,
     ) -> crate::Result<()> {
+        self.deposit_inner(idx, amount, now_slot, None)
+    }
+
+    /// Deposit on behalf of `caller`. The authority must match the account's
+    /// claimed owner when `require_authorization` is enabled.
+    pub fn deposit_authorized(
+        &mut self,
+        idx: u16,
+        amount: u128,
+        now_slot: u64,
+        caller: [u8; 32],
+    ) -> crate::Result<()> {
+        self.deposit_inner(idx, amount, now_slot, Some(&caller))
+    }
+
+    fn deposit_inner(
+        &mut self,
+        idx: u16,
+        amount: u128,
+        now_slot: u64,
+        caller: Option<&[u8; 32]>,
+    ) -> crate::Result<()> {
         let i = idx as usize;
+        if i < MAX_ACCOUNTS {
+            // WS2 Task 4: authorization hook (no-op when guard disabled).
+            self.check_authorization(i, caller)?;
+        }
         if i < MAX_ACCOUNTS && self.account_premiums[i].is_active {
-            let _ = self.collect_accrued_premium(idx, now_slot);
+            // WS2 Task 2: propagate collection failure instead of swallowing it.
+            self.collect_accrued_premium(idx, now_slot)?;
         }
 
         self.engine
@@ -340,6 +621,7 @@ impl InsuredRiskEngine {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn execute_trade(
         &mut self,
         a: u16,
@@ -356,11 +638,17 @@ impl InsuredRiskEngine {
         let ai = a as usize;
         let bi = b as usize;
 
+        // WS2 Task 4: oracle sanity guard (no-op when both bounds are 0).
+        // execute_trade is extraction-sensitive — reject a stale/divergent mark
+        // before it can drive PnL or position changes.
+        self.check_oracle_sanity(oracle_price, now_slot)?;
+
         if ai < MAX_ACCOUNTS && self.account_premiums[ai].is_active {
-            let _ = self.collect_accrued_premium(a, now_slot);
+            // WS2 Task 2: propagate collection failure instead of swallowing it.
+            self.collect_accrued_premium(a, now_slot)?;
         }
         if bi < MAX_ACCOUNTS && self.account_premiums[bi].is_active {
-            let _ = self.collect_accrued_premium(b, now_slot);
+            self.collect_accrued_premium(b, now_slot)?;
         }
 
         let a_was_flat = ai < MAX_ACCOUNTS
@@ -421,15 +709,21 @@ impl InsuredRiskEngine {
 
         let commitment = rate.saturating_mul(self.premium_params.min_commitment_slots as u128);
 
+        // WS2 Task 3: the upfront commitment is the single largest charge and is
+        // taken right after the position opens, when the buffer matters most.
+        // Cap it to the maintenance + safety floor so opening a position can
+        // never pre-emptively erode the liquidation buffer the fund relies on.
+        let to_charge = self.cap_premium_to_maint_buffer(i, commitment);
+
         let mut charged = 0u128;
-        if commitment > 0 {
+        if to_charge > 0 {
             // Record only what actually reached the insurance fund: the engine
             // caps the charge at available capital and drops the rest (see
             // collect_accrued_premium). prepaid_premium must reflect the real
             // amount paid, not the requested commitment.
             let before = self.engine.insurance_fund.balance.get();
             self.engine
-                .charge_account_fee_not_atomic(idx, commitment, now_slot)
+                .charge_account_fee_not_atomic(idx, to_charge, now_slot)
                 .map_err(InsuredError::Risk)?;
             let after = self.engine.insurance_fund.balance.get();
             let actually_charged = after.saturating_sub(before);
@@ -449,6 +743,10 @@ impl InsuredRiskEngine {
         Ok(())
     }
 
+    /// Withdraw without presenting a caller authority. With
+    /// `require_authorization` enabled this is rejected for claimed accounts —
+    /// use [`withdraw_authorized`](Self::withdraw_authorized).
+    #[allow(clippy::too_many_arguments)]
     pub fn withdraw(
         &mut self,
         idx: u16,
@@ -460,9 +758,58 @@ impl InsuredRiskEngine {
         admit_h_max: u64,
         admit_h_max_consumption_threshold_bps_opt: Option<u128>,
     ) -> crate::Result<()> {
+        self.withdraw_inner(
+            idx, amount, oracle_price, now_slot, funding_rate_e9,
+            admit_h_min, admit_h_max, admit_h_max_consumption_threshold_bps_opt, None,
+        )
+    }
+
+    /// Withdraw on behalf of `caller`. Withdrawal is the prime extraction op, so
+    /// it is gated by both the authorization hook and the oracle-sanity guard.
+    #[allow(clippy::too_many_arguments)]
+    pub fn withdraw_authorized(
+        &mut self,
+        idx: u16,
+        amount: u128,
+        oracle_price: u64,
+        now_slot: u64,
+        funding_rate_e9: i128,
+        admit_h_min: u64,
+        admit_h_max: u64,
+        admit_h_max_consumption_threshold_bps_opt: Option<u128>,
+        caller: [u8; 32],
+    ) -> crate::Result<()> {
+        self.withdraw_inner(
+            idx, amount, oracle_price, now_slot, funding_rate_e9,
+            admit_h_min, admit_h_max, admit_h_max_consumption_threshold_bps_opt, Some(&caller),
+        )
+    }
+
+    #[allow(clippy::too_many_arguments)]
+    fn withdraw_inner(
+        &mut self,
+        idx: u16,
+        amount: u128,
+        oracle_price: u64,
+        now_slot: u64,
+        funding_rate_e9: i128,
+        admit_h_min: u64,
+        admit_h_max: u64,
+        admit_h_max_consumption_threshold_bps_opt: Option<u128>,
+        caller: Option<&[u8; 32]>,
+    ) -> crate::Result<()> {
         let i = idx as usize;
+        if i < MAX_ACCOUNTS {
+            // WS2 Task 4: authorization + oracle sanity. Withdraw extracts
+            // capital, so it is the canonical extraction-sensitive action the
+            // README says to reject during oracle divergence.
+            self.check_authorization(i, caller)?;
+        }
+        self.check_oracle_sanity(oracle_price, now_slot)?;
+
         if i < MAX_ACCOUNTS && self.account_premiums[i].is_active {
-            let _ = self.collect_accrued_premium(idx, now_slot);
+            // WS2 Task 2: propagate collection failure instead of swallowing it.
+            self.collect_accrued_premium(idx, now_slot)?;
         }
 
         self.engine
@@ -480,6 +827,7 @@ impl InsuredRiskEngine {
         Ok(())
     }
 
+    #[allow(clippy::too_many_arguments)]
     pub fn liquidate(
         &mut self,
         idx: u16,
@@ -492,8 +840,16 @@ impl InsuredRiskEngine {
         admit_h_max_consumption_threshold_bps_opt: Option<u128>,
     ) -> crate::Result<bool> {
         let i = idx as usize;
+        // WS2 Task 4: the oracle-sanity guard is INTENTIONALLY NOT applied to
+        // liquidation. Liquidation is a risk-REDUCING keeper action, not an
+        // owner extraction; blocking it during a fast/divergent mark would
+        // strand under-collateralized accounts and worsen fund solvency — the
+        // opposite of the guard's intent. Authorization is likewise not gated
+        // (liquidation is permissionless by design). The engine's own bounded-
+        // crank logic still clamps the price move applied inside the call.
         if i < MAX_ACCOUNTS && self.account_premiums[i].is_active {
-            let _ = self.collect_accrued_premium(idx, now_slot);
+            // WS2 Task 2: propagate collection failure instead of swallowing it.
+            self.collect_accrued_premium(idx, now_slot)?;
         }
 
         let result = self

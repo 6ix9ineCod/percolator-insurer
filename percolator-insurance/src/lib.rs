@@ -59,6 +59,16 @@ pub enum InsuredError {
     PoolTopUpFailed,
     /// Invalid premium parameters at initialization.
     InvalidParams,
+    /// WS2 Task 4: a passed oracle_price is stale or diverges beyond the
+    /// configured bound from the engine's last accrued price. The wrapper
+    /// rejects the extraction-sensitive op rather than admit a manipulated
+    /// or stale mark (README: "reject extraction-sensitive actions while raw
+    /// oracle target and effective engine price diverge").
+    OracleDivergence,
+    /// WS2 Task 4: the caller authority does not match the account's claimed
+    /// owner while `require_authorization` is enabled (README: "A compliant
+    /// wrapper must enforce authorization").
+    Unauthorized,
 }
 
 impl From<RiskError> for InsuredError {

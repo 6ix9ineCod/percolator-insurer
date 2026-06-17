@@ -52,6 +52,12 @@ fn test_premium_params() -> PremiumParams {
         // Task 3: tail surcharge onset at 80% of L_max, steepness 3.0x.
         leverage_tail_threshold_bps: 8000,
         leverage_tail_steepness: 3000,
+        // WS2 Task 3: collection cap disabled by default (permissive).
+        collection_maint_buffer_bps: 0,
+        // WS2 Task 4: oracle/auth guards disabled by default (permissive).
+        max_oracle_deviation_bps: 0,
+        max_oracle_staleness_slots: 0,
+        require_authorization: false,
     }
 }
 
@@ -379,4 +385,222 @@ fn test_pool_records_only_actual_collection_when_capital_insufficient() {
     assert!(engine.pool.balance <= engine.engine.insurance_fund.balance.get());
     assert!(engine.pool.check_invariants());
     assert!(engine.engine.check_conservation());
+}
+
+// ====================================================================
+// WS2 Task 2: discarded-result policy — collection failures before a
+// wrapped op are propagated, not silently swallowed.
+// ====================================================================
+
+#[test]
+fn test_collection_failure_propagates_from_deposit() {
+    // A genuine collection failure (an Err from the engine, NOT the capped-fee
+    // Ok path) must ABORT the wrapped op and surface to the caller rather than
+    // being swallowed by `let _ = ...`. We isolate the collection error from the
+    // wrapped op: the fee charge rejects fee_abs > MAX_PROTOCOL_FEE_ABS (10^36)
+    // with RiskError::Overflow, while deposit_not_atomic at the SAME, fresh slot
+    // succeeds. So if collection errors are propagated the deposit fails; if
+    // they were swallowed the deposit would succeed.
+    let rp = test_risk_params();
+    let mut pp = test_premium_params();
+    // Brutal flat rate so premium_owed over a modest interval exceeds 10^36.
+    // Cap guard OFF (default 0) so the huge charge actually reaches the engine.
+    pp.base_rate_per_slot = 1_000_000_000_000_000_000_000_000_000_000_000; // 10^33
+    pp.min_premium_per_slot = 1_000_000_000_000_000_000_000_000_000_000_000; // 10^33
+    pp.min_commitment_slots = 1; // tiny commitment so the account survives open
+    let oracle = 1000u64;
+    let slot = 1u64;
+
+    let mut engine = InsuredRiskEngine::new(rp, pp, slot, oracle).unwrap();
+    // Fund both accounts richly so the position opens and the deposit is valid.
+    engine.deposit(0, 100_000_000, slot).unwrap();
+    engine.deposit(1, 100_000_000, slot).unwrap();
+    engine
+        .engine
+        .keeper_crank_not_atomic(
+            slot,
+            oracle,
+            &[] as &[(u16, Option<LiquidationPolicy>)],
+            64,
+            0i128,
+            0,
+            100,
+            None,
+            0,
+        )
+        .unwrap();
+
+    // Open at slot 2 → last_premium_slot[0] = 2.
+    engine
+        .execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
+        .unwrap();
+    assert!(engine.account_premiums[0].is_active);
+
+    // Crank the engine (and last_market_slot) forward to slot 50 so the next
+    // op at slot 50 is itself valid, but [2,50] of premium at 10^33/slot is
+    // ~4.8 * 10^34 ... still below 10^36. Push to a slot where rate*dt > 10^36:
+    // dt must exceed 1000 slots. Crank to 1100, then deposit at 1100.
+    for s in [50u64, 200, 600, 1100] {
+        engine
+            .engine
+            .keeper_crank_not_atomic(
+                s,
+                oracle,
+                &[] as &[(u16, Option<LiquidationPolicy>)],
+                64,
+                0i128,
+                0,
+                100,
+                None,
+                0,
+            )
+            .unwrap();
+    }
+
+    // Deposit at slot 1100: collection owes ~1098 * 10^33 ≈ 1.1*10^36 > 10^36,
+    // so charge_account_fee_not_atomic returns Err(Overflow). The deposit's own
+    // call at slot 1100 (last_market_slot == 1100) would otherwise succeed.
+    let res = engine.deposit(0, 1, 1100);
+    assert!(
+        res.is_err(),
+        "collection failure before deposit must propagate (got Ok — error was swallowed)"
+    );
+}
+
+// ====================================================================
+// WS2 Task 3: counter-cyclical collection cap — a stressed, near-maintenance
+// account is never charged below its maintenance + safety buffer.
+// ====================================================================
+
+#[test]
+fn test_collection_cap_respects_maintenance_buffer() {
+    let rp = test_risk_params();
+    let mut pp = test_premium_params();
+    // Demand a 200-bps-of-notional safety buffer above maintenance margin.
+    pp.collection_maint_buffer_bps = 200;
+    // Make premiums brutally expensive so an uncapped collection would drain
+    // the account well below maintenance.
+    pp.base_rate_per_slot = 1_000_000;
+    pp.min_premium_per_slot = 1_000_000;
+    let oracle = 1000u64;
+    let slot = 1u64;
+
+    let mut engine = InsuredRiskEngine::new(rp, pp, slot, oracle).unwrap();
+    engine.deposit(1, 100_000_000, slot).unwrap();
+    engine.deposit(0, 1_000_000, slot).unwrap();
+    engine
+        .engine
+        .keeper_crank_not_atomic(
+            slot,
+            oracle,
+            &[] as &[(u16, Option<LiquidationPolicy>)],
+            64,
+            0i128,
+            0,
+            100,
+            None,
+            0,
+        )
+        .unwrap();
+
+    // Open a position; commitment charge is now capped by the buffer guard.
+    engine
+        .execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
+        .unwrap();
+
+    // Advance many slots so an uncapped accrual would demand more than the
+    // account's whole remaining capital, then collect.
+    engine.collect_accrued_premium(0, slot + 100_000).unwrap();
+
+    // The account must still be above its maintenance + safety floor.
+    let acct = engine.engine.accounts[0];
+    let eq_maint = engine.engine.account_equity_maint_raw(&acct);
+    let notional = {
+        let pos = acct.position_basis_q.unsigned_abs();
+        pos.saturating_mul(engine.engine.last_oracle_price as u128) / POS_SCALE
+    };
+    let mm_req = core::cmp::max(
+        notional * engine.engine.params.maintenance_margin_bps as u128 / 10_000,
+        engine.engine.params.min_nonzero_mm_req,
+    );
+    let buffer = notional * 200 / 10_000;
+    let floor = (mm_req + buffer) as i128;
+    assert!(
+        eq_maint >= floor,
+        "collection drove equity {} below maintenance+buffer floor {}",
+        eq_maint,
+        floor
+    );
+    assert!(engine.engine.check_conservation());
+    assert!(engine.pool.check_invariants());
+}
+
+// ====================================================================
+// WS2 Task 4: compliance guards — oracle sanity + authorization hook.
+// ====================================================================
+
+#[test]
+fn test_oracle_deviation_guard_rejects_divergent_price() {
+    let rp = test_risk_params();
+    let mut pp = test_premium_params();
+    // Reject any oracle that diverges > 1% from the engine's last price.
+    pp.max_oracle_deviation_bps = 100;
+    let oracle = 1000u64;
+    let slot = 1u64;
+
+    let mut engine = InsuredRiskEngine::new(rp, pp, slot, oracle).unwrap();
+    engine.deposit(0, 10_000_000, slot).unwrap();
+    engine.deposit(1, 10_000_000, slot).unwrap();
+    engine
+        .engine
+        .keeper_crank_not_atomic(
+            slot,
+            oracle,
+            &[] as &[(u16, Option<LiquidationPolicy>)],
+            64,
+            0i128,
+            0,
+            100,
+            None,
+            0,
+        )
+        .unwrap();
+
+    // last_oracle_price is ~1000; a price of 2000 diverges 100% >> 1%.
+    let res = engine.execute_trade(0, 1, 2000, 2, make_size_q(10), 2000, 0, 0, 100, None);
+    assert!(
+        matches!(res, Err(percolator_insurance::InsuredError::OracleDivergence)),
+        "divergent oracle must be rejected, got {:?}",
+        res
+    );
+
+    // A price within 1% (e.g. 1005) must be accepted.
+    let ok = engine.execute_trade(0, 1, 1005, 2, make_size_q(10), 1005, 0, 0, 100, None);
+    assert!(ok.is_ok(), "in-bound oracle must pass, got {:?}", ok);
+}
+
+#[test]
+fn test_authorization_guard_rejects_unauthorized_caller() {
+    let rp = test_risk_params();
+    let mut pp = test_premium_params();
+    pp.require_authorization = true;
+    let oracle = 1000u64;
+    let slot = 1u64;
+
+    let mut engine = InsuredRiskEngine::new(rp, pp, slot, oracle).unwrap();
+    // Materialize and claim account 0 to owner [7u8;32].
+    engine.deposit_authorized(0, 10_000_000, slot, [7u8; 32]).unwrap();
+    engine.engine.set_owner(0, [7u8; 32]).unwrap();
+
+    // Authorized caller matches the owner → ok.
+    let ok = engine.deposit_authorized(0, 1, slot, [7u8; 32]);
+    assert!(ok.is_ok(), "authorized caller must pass, got {:?}", ok);
+
+    // Wrong authority → rejected.
+    let bad = engine.deposit_authorized(0, 1, slot, [9u8; 32]);
+    assert!(
+        matches!(bad, Err(percolator_insurance::InsuredError::Unauthorized)),
+        "unauthorized caller must be rejected, got {:?}",
+        bad
+    );
 }
