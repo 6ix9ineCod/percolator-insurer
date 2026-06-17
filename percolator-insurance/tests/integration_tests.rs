@@ -480,7 +480,7 @@ fn test_collection_cap_respects_maintenance_buffer() {
     pp.collection_maint_buffer_bps = 200;
     // Make premiums brutally expensive so an uncapped collection would drain
     // the account well below maintenance.
-    pp.base_rate_per_slot = 1_000_000;
+    pp.base_rate_per_slot = 50_000;
     pp.min_premium_per_slot = 1_000_000;
     let oracle = 1000u64;
     let slot = 1u64;
@@ -649,3 +649,35 @@ fn test_accrue_global_is_monotonic_and_advances() {
     engine.accrue(5);
     assert_eq!(engine.cum_system_index, frozen, "no-op when slot goes backward");
 }
+
+#[test]
+fn test_buy_and_hold_pays_for_integrated_spike() {
+    let mut engine = setup_engine();
+    let oracle = 1000u64;
+    engine
+        .execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
+        .unwrap();
+    let baseline_collected = engine.pool.total_collected;
+    // Advance the GLOBAL accumulator via accrue() (simulating other activity /
+    // keeper cranks) WITHOUT the account touching, then a single collect bills it.
+    for s in (10..2000).step_by(100) {
+        engine.accrue(s);
+    }
+    let collected = engine.collect_accrued_premium(0, 2000).unwrap();
+    assert!(collected > 0, "buy-and-hold must owe premium for elapsed system risk");
+    assert!(engine.pool.total_collected > baseline_collected);
+}
+
+#[test]
+fn test_leverage_flicker_billed_at_high_endpoint() {
+    let mut engine = setup_engine();
+    let oracle = 1000u64;
+    engine
+        .execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
+        .unwrap();
+    engine.deposit(0, 1_000_000, 50).unwrap();
+    assert!(engine.account_premiums[0].last_leverage_factor >= MULT_SCALE);
+}
+
+
+

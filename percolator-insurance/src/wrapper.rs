@@ -73,7 +73,10 @@
 //! `test_pool_records_only_actual_collection_when_capital_insufficient`.
 
 use crate::pool::PremiumPool;
-use crate::premium::{compute_premium_per_slot, leverage_multiplier, leverage_tail_surcharge};
+use crate::premium::{
+    compute_interval_premium, compute_premium_per_slot, leverage_multiplier,
+    leverage_tail_surcharge,
+};
 use crate::risk_index::{
     crowding_multiplier, oi_vault_multiplier, pool_health_multiplier, RiskIndex,
 };
@@ -597,33 +600,38 @@ impl InsuredRiskEngine {
         if now_slot <= last {
             return Ok(0);
         }
-        let slots_elapsed = now_slot - last;
+
+        // Advance the global accumulator so this interval sees all elapsed system
+        // risk (advanced by every op + keeper accrue()). collect holds &mut self.
+        self.accrue(now_slot);
 
         let notional = self.account_notional(i);
-        // Review #4: a flat account (notional == 0) owes no premium
-        // (compute_premium_per_slot returns 0 for it anyway) — skip building the
-        // full risk index and premium entirely on the per-slot hot path.
+        // Flat account (notional == 0) owes no premium — advance snapshot + slot.
         if notional == 0 {
+            self.account_premiums[i].cum_system_snapshot = self.cum_system_index;
             self.account_premiums[i].last_premium_slot = now_slot;
             return Ok(0);
         }
-        let capital = self.engine.accounts[i].capital.get();
-        // Review #3: reuse `notional` instead of recomputing it in the index.
-        let risk_idx = self.risk_index_with_notional(i, notional);
 
-        let rate = compute_premium_per_slot(
+        // System risk integrated over the interval since this account's snapshot.
+        let system_accrued = self
+            .cum_system_index
+            .saturating_sub(self.account_premiums[i].cum_system_snapshot);
+
+        // Leverage charged at the MAX of the previous and current sample
+        // (anti-flicker hybrid). Crowding side is point-sampled (documented).
+        let lev_now = self.leverage_factor(i, notional);
+        let lev_charged = core::cmp::max(self.account_premiums[i].last_leverage_factor, lev_now);
+        let crowd = self.risk_index_with_notional(i, notional).crowding.0;
+
+        let premium_owed = compute_interval_premium(
             notional,
-            capital,
             self.premium_params.base_rate_per_slot,
-            &risk_idx,
+            lev_charged,
+            crowd,
+            system_accrued,
             self.premium_params.min_premium_per_slot,
         );
-
-        let premium_owed = rate.saturating_mul(slots_elapsed as u128);
-        if premium_owed == 0 {
-            self.account_premiums[i].last_premium_slot = now_slot;
-            return Ok(0);
-        }
 
         let mut collected = 0u128;
         let mut remaining = premium_owed;
@@ -663,6 +671,8 @@ impl InsuredRiskEngine {
             }
         }
 
+        self.account_premiums[i].cum_system_snapshot = self.cum_system_index;
+        self.account_premiums[i].last_leverage_factor = lev_now;
         self.account_premiums[i].last_premium_slot = now_slot;
         Ok(collected)
     }
