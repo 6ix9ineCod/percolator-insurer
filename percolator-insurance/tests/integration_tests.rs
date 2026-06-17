@@ -396,23 +396,21 @@ fn test_pool_records_only_actual_collection_when_capital_insufficient() {
 fn test_collection_failure_propagates_from_deposit() {
     // A genuine collection failure (an Err from the engine, NOT the capped-fee
     // Ok path) must ABORT the wrapped op and surface to the caller rather than
-    // being swallowed by `let _ = ...`. We isolate the collection error from the
-    // wrapped op: the fee charge rejects fee_abs > MAX_PROTOCOL_FEE_ABS (10^36)
-    // with RiskError::Overflow, while deposit_not_atomic at the SAME, fresh slot
-    // succeeds. So if collection errors are propagated the deposit fails; if
-    // they were swallowed the deposit would succeed.
+    // being swallowed by `let _ = ...`. We force an astronomically large
+    // integrated premium (system_accrued == u128::MAX) that exceeds the prepaid
+    // cushion and overflows the engine's fee cap (fee_abs > MAX_PROTOCOL_FEE_ABS),
+    // so `charge_account_fee_not_atomic` returns Err(Overflow). If collection
+    // errors are propagated the deposit fails; if they were swallowed it succeeds.
+    // A large base_rate keeps the integrated premium's numerator from collapsing
+    // to 1 under GCD reduction, so system_accrued == u128::MAX truly overflows the
+    // fee cap rather than reducing below it.
     let rp = test_risk_params();
     let mut pp = test_premium_params();
-    // Brutal flat rate so premium_owed over a modest interval exceeds 10^36.
-    // Cap guard OFF (default 0) so the huge charge actually reaches the engine.
-    pp.base_rate_per_slot = 1_000_000_000_000_000_000_000_000_000_000_000; // 10^33
-    pp.min_premium_per_slot = 1_000_000_000_000_000_000_000_000_000_000_000; // 10^33
-    pp.min_commitment_slots = 1; // tiny commitment so the account survives open
+    pp.base_rate_per_slot = 1_000_000_000;
+    pp.min_commitment_slots = 1; // tiny commitment so the open survives
     let oracle = 1000u64;
     let slot = 1u64;
-
     let mut engine = InsuredRiskEngine::new(rp, pp, slot, oracle).unwrap();
-    // Fund both accounts richly so the position opens and the deposit is valid.
     engine.deposit(0, 100_000_000, slot).unwrap();
     engine.deposit(1, 100_000_000, slot).unwrap();
     engine
@@ -429,38 +427,20 @@ fn test_collection_failure_propagates_from_deposit() {
             0,
         )
         .unwrap();
-
-    // Open at slot 2 → last_premium_slot[0] = 2.
     engine
         .execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
         .unwrap();
     assert!(engine.account_premiums[0].is_active);
 
-    // Crank the engine (and last_market_slot) forward to slot 50 so the next
-    // op at slot 50 is itself valid, but [2,50] of premium at 10^33/slot is
-    // ~4.8 * 10^34 ... still below 10^36. Push to a slot where rate*dt > 10^36:
-    // dt must exceed 1000 slots. Crank to 1100, then deposit at 1100.
-    for s in [50u64, 200, 600, 1100] {
-        engine
-            .engine
-            .keeper_crank_not_atomic(
-                s,
-                oracle,
-                &[] as &[(u16, Option<LiquidationPolicy>)],
-                64,
-                0i128,
-                0,
-                100,
-                None,
-                0,
-            )
-            .unwrap();
-    }
+    // Drive the integrated premium into the overflow region and remove the
+    // prepaid cushion so the (huge) charge actually reaches the engine. Slot 3 is
+    // one past the engine's current slot (2), so the accrual envelope is fine and
+    // the failure is specifically the fee-cap overflow.
+    engine.account_premiums[0].prepaid_premium = 0;
+    engine.account_premiums[0].cum_system_snapshot = 0;
+    engine.cum_system_index = u128::MAX;
 
-    // Deposit at slot 1100: collection owes ~1098 * 10^33 ≈ 1.1*10^36 > 10^36,
-    // so charge_account_fee_not_atomic returns Err(Overflow). The deposit's own
-    // call at slot 1100 (last_market_slot == 1100) would otherwise succeed.
-    let res = engine.deposit(0, 1, 1100);
+    let res = engine.deposit(0, 1, 3);
     assert!(
         res.is_err(),
         "collection failure before deposit must propagate (got Ok — error was swallowed)"
@@ -651,21 +631,33 @@ fn test_accrue_global_is_monotonic_and_advances() {
 }
 
 #[test]
-fn test_buy_and_hold_pays_for_integrated_spike() {
+fn test_buy_and_hold_pays_for_integrated_system_risk() {
+    // The buy-and-hold attack: open when calm, hold through elapsed system risk,
+    // close with a single touch. Advance the GLOBAL accumulator via accrue()
+    // (other accounts' activity / keeper cranks) WITHOUT this account touching;
+    // the single collect must bill the integrated risk — the attacker cannot
+    // avoid premium by staying quiet. The premium here is drawn from the prepaid
+    // commitment; the proof is that it is NON-ZERO and the interval is consumed.
     let mut engine = setup_engine();
     let oracle = 1000u64;
     engine
         .execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
         .unwrap();
-    let baseline_collected = engine.pool.total_collected;
-    // Advance the GLOBAL accumulator via accrue() (simulating other activity /
-    // keeper cranks) WITHOUT the account touching, then a single collect bills it.
-    for s in (10..2000).step_by(100) {
+    let prepaid_before = engine.account_premiums[0].prepaid_premium;
+    assert!(prepaid_before > 0, "commitment prepaid must be charged at open");
+    for s in (10..20_000).step_by(100) {
         engine.accrue(s);
     }
-    let collected = engine.collect_accrued_premium(0, 2000).unwrap();
-    assert!(collected > 0, "buy-and-hold must owe premium for elapsed system risk");
-    assert!(engine.pool.total_collected > baseline_collected);
+    let collected = engine.collect_accrued_premium(0, 20_000).unwrap();
+    assert!(collected > 0, "buy-and-hold owes premium for integrated system risk");
+    assert!(
+        engine.account_premiums[0].prepaid_premium < prepaid_before,
+        "integrated premium must draw down the prepaid (it was billed)"
+    );
+    assert_eq!(
+        engine.account_premiums[0].cum_system_snapshot, engine.cum_system_index,
+        "the interval must be consumed (snapshot advances to the current accumulator)"
+    );
 }
 
 #[test]
