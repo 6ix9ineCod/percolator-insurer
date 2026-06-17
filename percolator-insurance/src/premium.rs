@@ -586,8 +586,15 @@ pub fn calibrate_base_rate(
 /// ```
 /// `lev_charged` and `crowd` are in MULT_SCALE units; `system_accrued` is
 /// `Σ system_index_scaled · dt` (carrying one MULT_SCALE). For a constant system
-/// index and leverage this equals `compute_premium_per_slot × slots`. Floored at
-/// `min_premium`; saturates UP on true overflow.
+/// index and leverage this equals `compute_premium_per_slot × slots`. Saturates
+/// UP on true overflow.
+///
+/// NOTE on the floor: `min_premium` floors the WHOLE interval here, not each slot
+/// (the prior per-slot model floored every slot). For any real notional the
+/// `system_accrued` term dominates and the two agree; the difference is only
+/// observable for dust positions whose integrated term rounds below the floor,
+/// which then pay `min_premium` for the interval rather than `min_premium × slots`
+/// — economically negligible.
 pub fn compute_interval_premium(
     notional: u128,
     base_rate: u128,

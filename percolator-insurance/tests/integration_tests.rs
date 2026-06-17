@@ -661,14 +661,61 @@ fn test_buy_and_hold_pays_for_integrated_system_risk() {
 }
 
 #[test]
-fn test_leverage_flicker_billed_at_high_endpoint() {
-    let mut engine = setup_engine();
-    let oracle = 1000u64;
-    engine
-        .execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
-        .unwrap();
-    engine.deposit(0, 1_000_000, 50).unwrap();
-    assert!(engine.account_premiums[0].last_leverage_factor >= MULT_SCALE);
+fn test_system_spike_increases_integrated_premium() {
+    // The headline attack: open calm, the SYSTEM index spikes mid-hold, close with
+    // a single touch. Two identical books over the same slots/position — one calm,
+    // one spiked (oi_vault + pool_health jump via inflated total OI). The spiked
+    // book must owe MATERIALLY MORE, proving the accumulator INTEGRATES the spike
+    // (not merely elapsed time).
+    fn run(spike: bool) -> u128 {
+        let mut e = setup_engine();
+        let oracle = 1000u64;
+        e.execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
+            .unwrap();
+        for s in (10..1000).step_by(100) {
+            e.accrue(s); // calm phase
+        }
+        if spike {
+            // Inflate total OI equally on both sides (balanced → crowding stays
+            // neutral) so ONLY the system factors (oi_vault, pool_health) spike.
+            e.engine.oi_eff_long_q = 1_000_000_000_000_000;
+            e.engine.oi_eff_short_q = 1_000_000_000_000_000;
+        }
+        for s in (1100..5000).step_by(100) {
+            e.accrue(s); // spike phase
+        }
+        e.collect_accrued_premium(0, 5000).unwrap()
+    }
+    let calm = run(false);
+    let spiked = run(true);
+    assert!(
+        spiked > calm,
+        "a system-risk spike during the hold must raise the integrated premium: \
+         spiked={spiked} calm={calm}"
+    );
+}
+
+#[test]
+fn test_leverage_flicker_billed_at_max_endpoint() {
+    // Leverage is charged at max(last_sample, current). A trader who lowered
+    // leverage right before collection cannot escape a high prior endpoint. Two
+    // identical books differ only in the seeded prior leverage sample; current
+    // leverage is ~1x in both. The one with the HIGH prior endpoint must owe more.
+    fn run(prior_lev: u128) -> u128 {
+        let mut e = setup_engine();
+        let oracle = 1000u64;
+        e.execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
+            .unwrap();
+        e.account_premiums[0].last_leverage_factor = prior_lev;
+        e.accrue(10_000);
+        e.collect_accrued_premium(0, 10_000).unwrap()
+    }
+    let high_prior = run(20 * MULT_SCALE); // prior endpoint was 20x
+    let low_prior = run(MULT_SCALE); // prior endpoint was 1x
+    assert!(
+        high_prior > low_prior,
+        "interval must bill at the MAX leverage endpoint: high={high_prior} low={low_prior}"
+    );
 }
 
 #[test]
