@@ -41,6 +41,17 @@ floating point. The `PremiumPool` is an accounting claim on Percolator's
 insurance fund (it holds no segregated assets); it records the amount that
 *actually* reached the fund and reconciles against the fund's balance.
 
+**Time-integrated accrual (anti-gaming).** Rather than pricing the whole elapsed
+interval at the instantaneous rate seen at collection time (which a trader can
+game by timing *when* they are collected from), the account-independent system
+factors (`oi_vault × pool_health × volatility`) are integrated over real elapsed
+time by a global accumulator (`cum_system_index`, the funding-rate pattern),
+advanced by **every** wrapped op and a public `accrue()` for the keeper. A single
+account cannot starve the sampler by going quiet — others' activity advances it.
+Per-account leverage is charged at the **max of the interval endpoints**
+(hardening leverage flicker). Crowding *side* remains point-sampled (documented
+residual). See `docs/REVIEW.md` and the spec for the full design.
+
 ## Layout
 
 | File | Responsibility |
