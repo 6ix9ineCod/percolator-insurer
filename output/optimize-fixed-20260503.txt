@@ -1,0 +1,47 @@
+══════════════════════════════════════════════════
+  PERCOLATOR-SIM REPORT — optimize-best-7
+  Generated: 2026-05-04 00:27:53 UTC
+  Duration: 215998 slots (23h 59m)
+══════════════════════════════════════════════════
+
+─── PARAMETERS ───
+  base_rate_per_slot:     505
+  leverage_exponent:      2/1
+  min_commitment_slots:   243000
+  crowding_cap:           5000
+  oi_vault_mult_max:      3250
+  pool_health_mult_max:   6000
+  min_premium_per_slot:   50
+  budget_cap:             0.1000%
+
+─── FUND HEALTH ───
+  Start balance:          50000000000
+  End balance:            50000000000
+  Min balance:            50000000000 (slot 100)
+  Max balance:            50000000000 (slot 215909)
+  Surplus:                0 (0.0000% of notional)
+  Deficit slots:          0 (0.0% of duration)
+  Haircut activations:    0
+  Haircut duration:       0 slots total
+
+─── PREMIUMS ───
+  Total collected:        0
+  Avg per slot per acct:  0
+  As % of notional:       0.0000%
+  Budget cap:             0.1000%
+  Budget status:          UNDER
+
+─── LIQUIDATIONS ───
+  Total count:            0
+  Capital liquidated:     0
+  Cascade events:         0 (>3 liqs within 100 slots)
+  Largest cascade:        0 liqs
+
+─── FLOW SIGNAL ───
+  Avg toxicity:           55/100
+  Max toxicity:           70/100 (slot 215909)
+  Time above 70:          0 slots (0.0%)
+
+─── VERDICT ───
+  PASS: no haircut activations, premiums within budget
+══════════════════════════════════════════════════

@@ -1,0 +1,47 @@
+══════════════════════════════════════════════════
+  PERCOLATOR-SIM REPORT — BTCUSDT-aggTrades-2026-04-26.csv
+  Generated: 2026-05-03 22:53:00 UTC
+  Duration: 215999 slots (23h 59m)
+══════════════════════════════════════════════════
+
+─── PARAMETERS ───
+  base_rate_per_slot:     790
+  leverage_exponent:      1/1
+  min_commitment_slots:   425746
+  crowding_cap:           3922
+  oi_vault_mult_max:      3246
+  pool_health_mult_max:   6477
+  min_premium_per_slot:   9
+  budget_cap:             0.1000%
+
+─── FUND HEALTH ───
+  Start balance:          0
+  End balance:            22436842193466
+  Min balance:            35809800496 (slot 100)
+  Max balance:            22436842193466 (slot 215967)
+  Surplus:                22436842193466 (0.3594% of notional)
+  Deficit slots:          0 (0.0% of duration)
+  Haircut activations:    5
+  Haircut duration:       2143 slots total
+
+─── PREMIUMS ───
+  Total collected:        22381434753246
+  Avg per slot per acct:  1726970
+  As % of notional:       0.3585%
+  Budget cap:             0.1000%
+  Budget status:          OVER
+
+─── LIQUIDATIONS ───
+  Total count:            74
+  Capital liquidated:     488841560
+  Cascade events:         6 (>3 liqs within 100 slots)
+  Largest cascade:        21 liqs
+
+─── FLOW SIGNAL ───
+  Avg toxicity:           54/100
+  Max toxicity:           70/100 (slot 191985)
+  Time above 70:          0 slots (0.0%)
+
+─── VERDICT ───
+  FAIL: 5 haircut activation(s) detected
+══════════════════════════════════════════════════

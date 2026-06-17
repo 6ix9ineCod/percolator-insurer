@@ -1,0 +1,3590 @@
+warning: unexpected `cfg` condition name: `kani`
+  --> src/percolator.rs:36:7
+   |
+36 | #[cfg(kani)]
+   |       ^^^^
+   |
+   = help: expected names are: `docsrs`, `feature`, and `test` and 31 more
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+   = note: `#[warn(unexpected_cfgs)]` on by default
+
+warning: unexpected `cfg` condition name: `kani`
+  --> src/percolator.rs:66:7
+   |
+66 | #[cfg(kani)]
+   |       ^^^^
+   |
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+  --> src/percolator.rs:69:33
+   |
+69 | #[cfg(all(feature = "test", not(kani)))]
+   |                                 ^^^^
+   |
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+  --> src/percolator.rs:74:57
+   |
+74 | #[cfg(all(feature = "small", not(feature = "test"), not(kani)))]
+   |                                                         ^^^^
+   |
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+  --> src/percolator.rs:81:9
+   |
+81 |     not(kani)
+   |         ^^^^
+   |
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+  --> src/percolator.rs:86:9
+   |
+86 |     not(kani),
+   |         ^^^^
+   |
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:458:29
+    |
+458 | #[cfg(any(feature = "test", kani))]
+    |                             ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:3007:58
+     |
+3007 |     #[cfg_attr(any(feature = "test", feature = "stress", kani), doc(hidden))]
+     |                                                          ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+  --> src/i128.rs:19:7
+   |
+19 | #[cfg(kani)]
+   |       ^^^^
+   |
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+  --> src/i128.rs:24:7
+   |
+24 | #[cfg(kani)]
+   |       ^^^^
+   |
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:122:7
+    |
+122 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:129:7
+    |
+129 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:136:7
+    |
+136 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:143:7
+    |
+143 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:150:7
+    |
+150 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:157:7
+    |
+157 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:164:7
+    |
+164 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:171:7
+    |
+171 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:178:7
+    |
+178 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:186:7
+    |
+186 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:194:7
+    |
+194 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:202:7
+    |
+202 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:210:7
+    |
+210 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:218:7
+    |
+218 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:225:7
+    |
+225 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:235:11
+    |
+235 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:240:11
+    |
+240 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:334:11
+    |
+334 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:341:11
+    |
+341 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:348:11
+    |
+348 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:355:11
+    |
+355 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:362:11
+    |
+362 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:369:11
+    |
+369 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:376:11
+    |
+376 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:383:11
+    |
+383 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:393:7
+    |
+393 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:398:7
+    |
+398 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:492:7
+    |
+492 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:499:7
+    |
+499 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:506:7
+    |
+506 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:513:7
+    |
+513 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:520:7
+    |
+520 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:527:7
+    |
+527 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:534:7
+    |
+534 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:541:7
+    |
+541 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:548:7
+    |
+548 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:556:7
+    |
+556 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:564:7
+    |
+564 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:572:7
+    |
+572 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:580:7
+    |
+580 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:588:7
+    |
+588 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:596:7
+    |
+596 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:604:7
+    |
+604 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:612:7
+    |
+612 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:619:7
+    |
+619 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:631:11
+    |
+631 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:636:11
+    |
+636 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:731:11
+    |
+731 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:738:11
+    |
+738 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:745:11
+    |
+745 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:752:11
+    |
+752 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:759:11
+    |
+759 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:766:11
+    |
+766 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:773:11
+    |
+773 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:780:11
+    |
+780 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:788:11
+    |
+788 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:796:11
+    |
+796 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:804:11
+    |
+804 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:812:11
+    |
+812 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:820:11
+    |
+820 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:828:11
+    |
+828 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:836:11
+    |
+836 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:844:11
+    |
+844 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:852:11
+    |
+852 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:859:11
+    |
+859 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:867:11
+    |
+867 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:875:11
+    |
+875 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:883:11
+    |
+883 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:891:11
+    |
+891 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:899:11
+    |
+899 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:907:11
+    |
+907 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:915:11
+    |
+915 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/i128.rs:922:11
+    |
+922 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+  --> src/wide_math.rs:22:7
+   |
+22 | #[cfg(kani)]
+   |       ^^^^
+   |
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+  --> src/wide_math.rs:27:7
+   |
+27 | #[cfg(kani)]
+   |       ^^^^
+   |
+   = help: consider using a Cargo feature instead
+   = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+            [lints.rust]
+            unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+   = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+   = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/wide_math.rs:236:11
+    |
+236 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/wide_math.rs:241:11
+    |
+241 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/wide_math.rs:541:7
+    |
+541 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/wide_math.rs:546:7
+    |
+546 | #[cfg(kani)]
+    |       ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/wide_math.rs:771:11
+    |
+771 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/wide_math.rs:776:11
+    |
+776 | #[cfg(not(kani))]
+    |           ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/wide_math.rs:1078:11
+     |
+1078 | #[cfg(not(kani))]
+     |           ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/wide_math.rs:1086:11
+     |
+1086 | #[cfg(not(kani))]
+     |           ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:723:33
+    |
+723 |     #[cfg(any(feature = "test", kani))]
+    |                                 ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:793:13
+    |
+793 |         not(kani),
+    |             ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:832:15
+    |
+832 |     #[cfg(not(kani))]
+    |               ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:837:15
+    |
+837 |     #[cfg(not(kani))]
+    |               ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:847:15
+    |
+847 |     #[cfg(not(kani))]
+    |               ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:886:15
+    |
+886 |     #[cfg(not(kani))]
+    |               ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:898:15
+    |
+898 |     #[cfg(not(kani))]
+    |               ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:923:15
+    |
+923 |     #[cfg(not(kani))]
+    |               ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+   --> src/percolator.rs:943:15
+    |
+943 |     #[cfg(not(kani))]
+    |               ^^^^
+    |
+    = help: consider using a Cargo feature instead
+    = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+             [lints.rust]
+             unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+    = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+    = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:1018:15
+     |
+1018 |     #[cfg(not(kani))]
+     |               ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:1023:11
+     |
+1023 |     #[cfg(kani)]
+     |           ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:1028:15
+     |
+1028 |     #[cfg(not(kani))]
+     |               ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:1220:11
+     |
+1220 |     #[cfg(kani)]
+     |           ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:1306:33
+     |
+1306 |     #[cfg(any(feature = "test", kani))]
+     |                                 ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:1318:33
+     |
+1318 |     #[cfg(any(feature = "test", kani))]
+     |                                 ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:1533:53
+     |
+1533 |     #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                     ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused doc comment
+    --> src/percolator.rs:1625:5
+     |
+1625 | /     /// materialize_account(i, slot_anchor) — spec §2.5.
+1626 | |     /// Materializes a missing account at a specific slot index.
+1627 | |     /// The slot must not be currently in use.
+     | |_____-----------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+     = note: `#[warn(unused_doc_comments)]` (part of `#[warn(unused)]`) on by default
+
+warning: unused doc comment
+    --> src/percolator.rs:1773:5
+     |
+1773 | /     /// admit_fresh_reserve_h_lock (spec §4.7): decide effective horizon for fresh reserve.
+1774 | |     /// Returns admit_h_min if instant release preserves h=1, admit_h_max otherwise.
+1775 | |     /// Sticky: once an account gets h_max in this instruction, all later increments also get h_max.
+1776 | |     ///
+1777 | |     /// Internal helper. Not part of the public engine surface — callers should
+1778 | |     /// go through set_pnl_with_reserve with ReserveMode::UseAdmissionPair.
+     | |_____----------------------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:1845:5
+     |
+1845 | /     /// admit_outstanding_reserve_on_touch (spec §4.9): accelerate existing reserve if h=1 holds.
+1846 | |     ///
+1847 | |     /// Internal helper. Not part of the public engine surface — called by
+1848 | |     /// touch_account_live_local as part of the live-touch pipeline.
+     | |_____---------------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:1913:5
+     |
+1913 | /     /// set_pnl: thin wrapper routing through set_pnl_with_reserve(ImmediateRelease).
+1914 | |     /// All PnL mutations go through one canonical path. ImmediateRelease routes
+1915 | |     /// positive increases directly to matured (no reserve queue), and decreases
+1916 | |     /// go through apply_reserve_loss_newest_first.
+     | |_____----------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:1923:5
+     |
+1923 | /     /// set_pnl with reserve_mode (spec §4.5).
+1924 | |     /// Canonical PNL mutation that routes positive increases through the cohort queue.
+     | |_____----------------------------------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:2074:5
+     |
+2074 | /     /// consume_released_pnl (spec §4.4.1): remove only matured released positive PnL,
+2075 | |     /// leaving R_i unchanged.
+     | |_____-------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:2111:5
+     |
+2111 |     /// set_capital (spec §4.2): checked signed-delta update of C_tot
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:2129:5
+     |
+2129 | /     /// set_position_basis_q (spec §4.4 + property 37): update stored pos
+2130 | |     /// counts based on sign changes. Enforces `cfg_max_active_positions_per_side`
+2131 | |     /// on any INCREMENTING transition (0 → nonzero, sign flip) by default.
+2132 | |     ///
+...    |
+2137 | |     /// the FINAL count does not breach cap; the end-of-instruction
+2138 | |     /// `assert_public_postconditions` re-verifies.
+     | |_____----------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:2198:5
+     |
+2198 |     /// attach_effective_position (spec §4.5)
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:2670:5
+     |
+2670 | /     /// settle_side_effects_live (spec §5.3): routes PnL delta
+2671 | |     /// through set_pnl_with_reserve with UseHLock for cohort queue.
+     | |_____---------------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:3088:5
+     |
+3088 | /     /// absorb_protocol_loss (spec §4.17): use_insurance_buffer then
+3089 | |     /// record_uninsured_protocol_loss for any remainder.
+     | |_____----------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:3104:5
+     |
+3104 | /     /// Internal helper that realizes wrapper-owned recurring maintenance fees
+3105 | |     /// for account `idx` over `[last_fee_slot, fee_slot_anchor]` at the given
+3106 | |     /// per-slot rate, then advances `last_fee_slot`.
+3107 | |     ///
+...    |
+3124 | |     /// does NOT accept a caller-supplied anchor; it derives the anchor from
+3125 | |     /// market mode (current_slot on Live, resolved_slot on Resolved).
+     | |_____-----------------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:3537:5
+     |
+3537 | /     /// Preflight finalize: if a side is ResetPending with OI=0, stale=0, pos_count=0,
+3538 | |     /// transition it back to Normal so fresh OI can be added.
+3539 | |     /// Called before OI-increase gating and at end-of-instruction.
+     | |_____--------------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:3632:5
+     |
+3632 |     /// PNL_eff_matured_i (spec §3.3): haircutted matured released positive PnL
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:3794:5
+     |
+3794 |     /// notional (spec §7): ceil(|effective_pos_q| * oracle_price / POS_SCALE)
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:4165:13
+     |
+4165 |         not(kani),
+     |             ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unused doc comment
+    --> src/percolator.rs:4306:5
+     |
+4306 |     /// released_pos (spec §2.1): Live subtracts reserve; Resolved does not.
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:4318:5
+     |
+4318 |     /// append_or_route_new_reserve (spec §4.3)
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:4374:5
+     |
+4374 |     /// apply_reserve_loss_newest_first (spec §4.4) — consume from pending first, then scheduled.
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:4430:5
+     |
+4430 |     /// prepare_account_for_resolved_touch (spec §4.4.3)
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:4634:5
+     |
+4634 | /     /// advance_profit_warmup (spec §4.8, two-bucket)
+4635 | |     /// Releases reserve from the scheduled bucket per linear maturity.
+     | |_____------------------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:4787:5
+     |
+4787 |     /// fee_debt_sweep (spec §7.5): after any capital increase, sweep fee debt
+     |     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:4819:5
+     |
+4819 | /     /// Live local touch: advance warmup, settle side effects, settle losses.
+4820 | |     /// Does NOT auto-convert, does NOT fee-sweep. Those happen in finalize.
+     | |_____-----------------------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:4852:5
+     |
+4852 | /     /// finalize_touched_accounts_post_live (spec §7.8).
+4853 | |     /// Whole-only conversion + fee sweep with shared snapshot.
+     | |_____----------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:5576:5
+     |
+5576 | /     /// Compute exact bilateral candidate side-OI after-values (spec §5.2.2).
+5577 | |     /// Returns (OI_long_after, OI_short_after).
+     | |_____-------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unused doc comment
+    --> src/percolator.rs:6172:5
+     |
+6172 | /     /// Validate a keeper-supplied liquidation-policy hint (spec §11.1 rule 3).
+6173 | |     /// Returns None if no liquidation action should be taken (absent hint per
+6174 | |     /// spec §11.2), or Some(policy) if the hint is valid. ExactPartial hints
+6175 | |     /// are validated via a stateless pre-flight check; invalid partials
+...    |
+6179 | |     /// and the synthetic close at oracle generates zero additional PnL delta,
+6180 | |     /// so Eq_maint_raw after partial = Eq_maint_raw_before - liq_fee.
+     | |_____-----------------------------------------------------------------^
+     |       |
+     |       rustdoc does not generate documentation for macro invocations
+     |
+     = help: to document an item produced by a macro, the macro must produce the documentation as part of its expansion
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:7355:53
+     |
+7355 |     #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                     ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+1553 | /     test_visible! {
+1554 | |     fn free_slot(&mut self, idx: u16) -> Result<()> {
+1555 | |         let i = idx as usize;
+1556 | |         if i >= MAX_ACCOUNTS || idx as u64 >= self.params.max_accounts {
+...    |
+1623 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+1553 | /     test_visible! {
+1554 | |     fn free_slot(&mut self, idx: u16) -> Result<()> {
+1555 | |         let i = idx as usize;
+1556 | |         if i >= MAX_ACCOUNTS || idx as u64 >= self.params.max_accounts {
+...    |
+1623 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+1628 | /     test_visible! {
+1629 | |     fn materialize_at(&mut self, idx: u16, slot_anchor: u64) -> Result<()> {
+1630 | |         if idx as usize >= MAX_ACCOUNTS {
+1631 | |             return Err(RiskError::AccountNotFound);
+...    |
+1767 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+1628 | /     test_visible! {
+1629 | |     fn materialize_at(&mut self, idx: u16, slot_anchor: u64) -> Result<()> {
+1630 | |         if idx as usize >= MAX_ACCOUNTS {
+1631 | |             return Err(RiskError::AccountNotFound);
+...    |
+1767 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+1779 | /     test_visible! {
+1780 | |     fn admit_fresh_reserve_h_lock(
+1781 | |         &self, idx: usize, fresh_positive_pnl: u128,
+1782 | |         ctx: &mut InstructionContext, admit_h_min: u64, admit_h_max: u64,
+...    |
+1813 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+1779 | /     test_visible! {
+1780 | |     fn admit_fresh_reserve_h_lock(
+1781 | |         &self, idx: usize, fresh_positive_pnl: u128,
+1782 | |         ctx: &mut InstructionContext, admit_h_min: u64, admit_h_max: u64,
+...    |
+1813 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+1849 | /     test_visible! {
+1850 | |     fn admit_outstanding_reserve_on_touch(
+1851 | |         &mut self,
+1852 | |         idx: usize,
+...    |
+1911 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+1849 | /     test_visible! {
+1850 | |     fn admit_outstanding_reserve_on_touch(
+1851 | |         &mut self,
+1852 | |         idx: usize,
+...    |
+1911 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+1917 | /     test_visible! {
+1918 | |     fn set_pnl(&mut self, idx: usize, new_pnl: i128) -> Result<()> {
+1919 | |         self.set_pnl_with_reserve(idx, new_pnl, ReserveMode::ImmediateReleaseResolvedOnly, None)
+1920 | |     }
+1921 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+1917 | /     test_visible! {
+1918 | |     fn set_pnl(&mut self, idx: usize, new_pnl: i128) -> Result<()> {
+1919 | |         self.set_pnl_with_reserve(idx, new_pnl, ReserveMode::ImmediateReleaseResolvedOnly, None)
+1920 | |     }
+1921 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+1925 | /     test_visible! {
+1926 | |     fn set_pnl_with_reserve(&mut self, idx: usize, new_pnl: i128, reserve_mode: ReserveMode, ctx: Option<&mut InstructionContext>) -> Res...
+1927 | |         if new_pnl == i128::MIN { return Err(RiskError::Overflow); }
+...    |
+2072 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+1925 | /     test_visible! {
+1926 | |     fn set_pnl_with_reserve(&mut self, idx: usize, new_pnl: i128, reserve_mode: ReserveMode, ctx: Option<&mut InstructionContext>) -> Res...
+1927 | |         if new_pnl == i128::MIN { return Err(RiskError::Overflow); }
+...    |
+2072 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+2076 | /     test_visible! {
+2077 | |     fn consume_released_pnl(&mut self, idx: usize, x: u128) -> Result<()> {
+2078 | |         if x == 0 { return Err(RiskError::CorruptState); }
+...    |
+2109 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+2076 | /     test_visible! {
+2077 | |     fn consume_released_pnl(&mut self, idx: usize, x: u128) -> Result<()> {
+2078 | |         if x == 0 { return Err(RiskError::CorruptState); }
+...    |
+2109 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+2112 | /     test_visible! {
+2113 | |     fn set_capital(&mut self, idx: usize, new_capital: u128) -> Result<()> {
+2114 | |         let old = self.accounts[idx].capital.get();
+2115 | |         if new_capital >= old {
+...    |
+2127 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+2112 | /     test_visible! {
+2113 | |     fn set_capital(&mut self, idx: usize, new_capital: u128) -> Result<()> {
+2114 | |         let old = self.accounts[idx].capital.get();
+2115 | |         if new_capital >= old {
+...    |
+2127 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+2139 | /     test_visible! {
+2140 | |     fn set_position_basis_q(&mut self, idx: usize, new_basis: i128) -> Result<()> {
+2141 | |         self.set_position_basis_q_inner(idx, new_basis, /*allow_transient_spike=*/false)
+2142 | |     }
+2143 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+2139 | /     test_visible! {
+2140 | |     fn set_position_basis_q(&mut self, idx: usize, new_basis: i128) -> Result<()> {
+2141 | |         self.set_position_basis_q_inner(idx, new_basis, /*allow_transient_spike=*/false)
+2142 | |     }
+2143 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+2145 | /     test_visible! {
+2146 | |     fn set_position_basis_q_allow_spike(&mut self, idx: usize, new_basis: i128) -> Result<()> {
+2147 | |         self.set_position_basis_q_inner(idx, new_basis, /*allow_transient_spike=*/true)
+2148 | |     }
+2149 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+2145 | /     test_visible! {
+2146 | |     fn set_position_basis_q_allow_spike(&mut self, idx: usize, new_basis: i128) -> Result<()> {
+2147 | |         self.set_position_basis_q_inner(idx, new_basis, /*allow_transient_spike=*/true)
+2148 | |     }
+2149 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+2199 | /     test_visible! {
+2200 | |     fn attach_effective_position(&mut self, idx: usize, new_eff_pos_q: i128) -> Result<()> {
+2201 | |         self.attach_effective_position_inner(idx, new_eff_pos_q, /*allow_spike=*/false)
+2202 | |     }
+2203 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+2199 | /     test_visible! {
+2200 | |     fn attach_effective_position(&mut self, idx: usize, new_eff_pos_q: i128) -> Result<()> {
+2201 | |         self.attach_effective_position_inner(idx, new_eff_pos_q, /*allow_spike=*/false)
+2202 | |     }
+2203 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+2663 | /     test_visible! {
+2664 | |     fn effective_pos_q(&self, idx: usize) -> i128 {
+2665 | |         self.effective_pos_q_checked(idx, false)
+2666 | |             .expect("canonical effective_pos_q state")
+2667 | |     }
+2668 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+2663 | /     test_visible! {
+2664 | |     fn effective_pos_q(&self, idx: usize) -> i128 {
+2665 | |         self.effective_pos_q_checked(idx, false)
+2666 | |             .expect("canonical effective_pos_q state")
+2667 | |     }
+2668 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+2672 | /     test_visible! {
+2673 | |     fn settle_side_effects_live(&mut self, idx: usize, ctx: &mut InstructionContext) -> Result<()> {
+2674 | |         let basis = self.accounts[idx].position_basis_q;
+2675 | |         if basis == 0 { return Ok(()); }
+...    |
+2748 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+2672 | /     test_visible! {
+2673 | |     fn settle_side_effects_live(&mut self, idx: usize, ctx: &mut InstructionContext) -> Result<()> {
+2674 | |         let basis = self.accounts[idx].position_basis_q;
+2675 | |         if basis == 0 { return Ok(()); }
+...    |
+2748 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3090 | /     test_visible! {
+3091 | |     fn absorb_protocol_loss(&mut self, loss: u128) {
+3092 | |         if loss == 0 {
+3093 | |             return;
+...    |
+3098 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3090 | /     test_visible! {
+3091 | |     fn absorb_protocol_loss(&mut self, loss: u128) {
+3092 | |         if loss == 0 {
+3093 | |             return;
+...    |
+3098 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3126 | /     test_visible! {
+3127 | |     fn sync_account_fee_to_slot(
+3128 | |         &mut self,
+3129 | |         idx: usize,
+...    |
+3171 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3126 | /     test_visible! {
+3127 | |     fn sync_account_fee_to_slot(
+3128 | |         &mut self,
+3129 | |         idx: usize,
+...    |
+3171 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3177 | /     test_visible! {
+3178 | |     fn enqueue_adl(&mut self, ctx: &mut InstructionContext, liq_side: Side, q_close_q: u128, d: u128) -> Result<()> {
+3179 | |         let opp = opposite_side(liq_side);
+...    |
+3345 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3177 | /     test_visible! {
+3178 | |     fn enqueue_adl(&mut self, ctx: &mut InstructionContext, liq_side: Side, q_close_q: u128, d: u128) -> Result<()> {
+3179 | |         let opp = opposite_side(liq_side);
+...    |
+3345 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3351 | /     test_visible! {
+3352 | |     fn begin_full_drain_reset(&mut self, side: Side) -> Result<()> {
+3353 | |         // Require OI_eff_side == 0
+3354 | |         if self.get_oi_eff(side) != 0 { return Err(RiskError::CorruptState); }
+...    |
+3423 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3351 | /     test_visible! {
+3352 | |     fn begin_full_drain_reset(&mut self, side: Side) -> Result<()> {
+3353 | |         // Require OI_eff_side == 0
+3354 | |         if self.get_oi_eff(side) != 0 { return Err(RiskError::CorruptState); }
+...    |
+3423 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3425 | /     test_visible! {
+3426 | |     fn finalize_side_reset(&mut self, side: Side) -> Result<()> {
+3427 | |         if self.get_side_mode(side) != SideMode::ResetPending {
+3428 | |             return Err(RiskError::CorruptState);
+...    |
+3442 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3425 | /     test_visible! {
+3426 | |     fn finalize_side_reset(&mut self, side: Side) -> Result<()> {
+3427 | |         if self.get_side_mode(side) != SideMode::ResetPending {
+3428 | |             return Err(RiskError::CorruptState);
+...    |
+3442 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3448 | /     test_visible! {
+3449 | |     fn schedule_end_of_instruction_resets(&mut self, ctx: &mut InstructionContext) -> Result<()> {
+3450 | |         // §5.7.A: Bilateral-empty dust clearance
+3451 | |         if self.stored_pos_count_long == 0 && self.stored_pos_count_short == 0 {
+...    |
+3522 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3448 | /     test_visible! {
+3449 | |     fn schedule_end_of_instruction_resets(&mut self, ctx: &mut InstructionContext) -> Result<()> {
+3450 | |         // §5.7.A: Bilateral-empty dust clearance
+3451 | |         if self.stored_pos_count_long == 0 && self.stored_pos_count_short == 0 {
+...    |
+3522 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3524 | /     test_visible! {
+3525 | |     fn finalize_end_of_instruction_resets(&mut self, ctx: &InstructionContext) -> Result<()> {
+3526 | |         if ctx.pending_reset_long && self.side_mode_long != SideMode::ResetPending {
+3527 | |             self.begin_full_drain_reset(Side::Long)?;
+...    |
+3535 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3524 | /     test_visible! {
+3525 | |     fn finalize_end_of_instruction_resets(&mut self, ctx: &InstructionContext) -> Result<()> {
+3526 | |         if ctx.pending_reset_long && self.side_mode_long != SideMode::ResetPending {
+3527 | |             self.begin_full_drain_reset(Side::Long)?;
+...    |
+3535 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3540 | /     test_visible! {
+3541 | |     fn maybe_finalize_ready_reset_sides(&mut self) {
+3542 | |         if self.side_mode_long == SideMode::ResetPending
+3543 | |             && self.get_oi_eff(Side::Long) == 0
+...    |
+3557 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3540 | /     test_visible! {
+3541 | |     fn maybe_finalize_ready_reset_sides(&mut self) {
+3542 | |         if self.side_mode_long == SideMode::ResetPending
+3543 | |             && self.get_oi_eff(Side::Long) == 0
+...    |
+3557 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3633 | /     test_visible! {
+3634 | |     fn effective_matured_pnl(&self, idx: usize) -> u128 {
+3635 | |         self.effective_matured_pnl_checked(idx, false)
+3636 | |             .expect("canonical matured PnL state")
+3637 | |     }
+3638 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3633 | /     test_visible! {
+3634 | |     fn effective_matured_pnl(&self, idx: usize) -> u128 {
+3635 | |         self.effective_matured_pnl_checked(idx, false)
+3636 | |             .expect("canonical matured PnL state")
+3637 | |     }
+3638 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+3795 | /     test_visible! {
+3796 | |     fn notional(&self, idx: usize, oracle_price: u64) -> u128 {
+3797 | |         self.notional_checked(idx, oracle_price, false)
+3798 | |             .expect("canonical risk notional state")
+3799 | |     }
+3800 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+3795 | /     test_visible! {
+3796 | |     fn notional(&self, idx: usize, oracle_price: u64) -> u128 {
+3797 | |         self.notional_checked(idx, oracle_price, false)
+3798 | |             .expect("canonical risk notional state")
+3799 | |     }
+3800 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+4307 | /     test_visible! {
+4308 | |     fn released_pos(&self, idx: usize) -> u128 {
+4309 | |         self.released_pos_checked(idx, false)
+4310 | |             .expect("canonical released PnL state")
+4311 | |     }
+4312 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+4307 | /     test_visible! {
+4308 | |     fn released_pos(&self, idx: usize) -> u128 {
+4309 | |         self.released_pos_checked(idx, false)
+4310 | |             .expect("canonical released PnL state")
+4311 | |     }
+4312 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+4319 | /     test_visible! {
+4320 | |     fn append_or_route_new_reserve(&mut self, idx: usize, reserve_add: u128, now_slot: u64, h_lock: u64) -> Result<()> {
+...    |
+4372 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+4319 | /     test_visible! {
+4320 | |     fn append_or_route_new_reserve(&mut self, idx: usize, reserve_add: u128, now_slot: u64, h_lock: u64) -> Result<()> {
+...    |
+4372 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+4375 | /     test_visible! {
+4376 | |     fn apply_reserve_loss_newest_first(&mut self, idx: usize, reserve_loss: u128) -> Result<()> {
+...    |
+4428 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+4375 | /     test_visible! {
+4376 | |     fn apply_reserve_loss_newest_first(&mut self, idx: usize, reserve_loss: u128) -> Result<()> {
+...    |
+4428 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+4431 | /     test_visible! {
+4432 | |     fn prepare_account_for_resolved_touch(&mut self, idx: usize) {
+4433 | |         let a = &mut self.accounts[idx];
+...    |
+4448 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+4431 | /     test_visible! {
+4432 | |     fn prepare_account_for_resolved_touch(&mut self, idx: usize) {
+4433 | |         let a = &mut self.accounts[idx];
+...    |
+4448 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+4636 | /     test_visible! {
+4637 | |     fn advance_profit_warmup(&mut self, idx: usize) -> Result<()> {
+4638 | |         // Validate reserve integrity before the pending-to-scheduled promotion.
+4639 | |         self.validate_reserve_shape(idx)?;
+...    |
+4739 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+4636 | /     test_visible! {
+4637 | |     fn advance_profit_warmup(&mut self, idx: usize) -> Result<()> {
+4638 | |         // Validate reserve integrity before the pending-to-scheduled promotion.
+4639 | |         self.validate_reserve_shape(idx)?;
+...    |
+4739 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+4788 | /     test_visible! {
+4789 | |     fn fee_debt_sweep(&mut self, idx: usize) -> Result<()> {
+4790 | |         self.validate_touched_account_shape(idx)?;
+4791 | |         let fc = self.accounts[idx].fee_credits.get();
+...    |
+4813 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+4788 | /     test_visible! {
+4789 | |     fn fee_debt_sweep(&mut self, idx: usize) -> Result<()> {
+4790 | |         self.validate_touched_account_shape(idx)?;
+4791 | |         let fc = self.accounts[idx].fee_credits.get();
+...    |
+4813 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+4821 | /     test_visible! {
+4822 | |     fn touch_account_live_local(&mut self, idx: usize, ctx: &mut InstructionContext) -> Result<()> {
+4823 | |         if self.market_mode != MarketMode::Live { return Err(RiskError::Unauthorized); }
+4824 | |         self.validate_touched_account_shape(idx)?;
+...    |
+4850 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+4821 | /     test_visible! {
+4822 | |     fn touch_account_live_local(&mut self, idx: usize, ctx: &mut InstructionContext) -> Result<()> {
+4823 | |         if self.market_mode != MarketMode::Live { return Err(RiskError::Unauthorized); }
+4824 | |         self.validate_touched_account_shape(idx)?;
+...    |
+4850 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+4854 | /     test_visible! {
+4855 | |     fn finalize_touched_account_post_live_with_snapshot(
+4856 | |         &mut self,
+4857 | |         idx: usize,
+...    |
+4878 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+4854 | /     test_visible! {
+4855 | |     fn finalize_touched_account_post_live_with_snapshot(
+4856 | |         &mut self,
+4857 | |         idx: usize,
+...    |
+4878 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+4880 | /     test_visible! {
+4881 | |     fn finalize_touched_accounts_post_live(&mut self, ctx: &InstructionContext) -> Result<()> {
+4882 | |         // Step 1: compute shared snapshot
+4883 | |         let senior_sum = self.c_tot.get().checked_add(
+...    |
+4904 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+4880 | /     test_visible! {
+4881 | |     fn finalize_touched_accounts_post_live(&mut self, ctx: &InstructionContext) -> Result<()> {
+4882 | |         // Step 1: compute shared snapshot
+4883 | |         let senior_sum = self.c_tot.get().checked_add(
+...    |
+4904 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+5020 | /     test_visible! {
+5021 | |     fn commit_withdrawal(&mut self, idx: usize, amount: u128) -> Result<()> {
+5022 | |         if self.accounts[idx].capital.get() < amount {
+5023 | |             return Err(RiskError::InsufficientBalance);
+...    |
+5029 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+5020 | /     test_visible! {
+5021 | |     fn commit_withdrawal(&mut self, idx: usize, amount: u128) -> Result<()> {
+5022 | |         if self.accounts[idx].capital.get() < amount {
+5023 | |             return Err(RiskError::InsufficientBalance);
+...    |
+5029 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+5180 | /     test_visible! {
+5181 | |     fn validate_execute_trade_entry(
+5182 | |         &self,
+5183 | |         a: u16,
+...    |
+5235 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+5180 | /     test_visible! {
+5181 | |     fn validate_execute_trade_entry(
+5182 | |         &self,
+5183 | |         a: u16,
+...    |
+5235 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+5512 | /     test_visible! {
+5513 | |     /// Charge fee per spec §8.1 — route shortfall through fee_credits instead of PNL.
+5514 | |     /// Returns (capital_paid_to_insurance, total_equity_impact).
+5515 | |     /// capital_paid is realized revenue; total includes collectible debt.
+...    |
+5557 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+5512 | /     test_visible! {
+5513 | |     /// Charge fee per spec §8.1 — route shortfall through fee_credits instead of PNL.
+5514 | |     /// Returns (capital_paid_to_insurance, total_equity_impact).
+5515 | |     /// capital_paid is realized revenue; total includes collectible debt.
+...    |
+5557 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+5578 | /     test_visible! {
+5579 | |     fn bilateral_oi_after(
+5580 | |         &self,
+5581 | |         old_a: &i128, new_a: &i128,
+...    |
+5598 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+5578 | /     test_visible! {
+5579 | |     fn bilateral_oi_after(
+5580 | |         &self,
+5581 | |         old_a: &i128, new_a: &i128,
+...    |
+5598 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+5600 | /     test_visible! {
+5601 | |     fn enforce_side_mode_oi_gate(
+5602 | |         &self,
+5603 | |         oi_long_after: u128,
+...    |
+5618 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+5600 | /     test_visible! {
+5601 | |     fn enforce_side_mode_oi_gate(
+5602 | |         &self,
+5603 | |         oi_long_after: u128,
+...    |
+5618 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+5659 | /     test_visible! {
+5660 | |     fn enforce_one_side_margin(
+5661 | |         &self,
+5662 | |         idx: usize,
+...    |
+5772 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+5659 | /     test_visible! {
+5660 | |     fn enforce_one_side_margin(
+5661 | |         &self,
+5662 | |         idx: usize,
+...    |
+5772 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+5985 | /     test_visible! {
+5986 | |     fn enforce_partial_liq_post_health(&self, idx: usize, oracle_price: u64) -> Result<()> {
+5987 | |         if !self.is_above_maintenance_margin(&self.accounts[idx], idx, oracle_price) {
+5988 | |             return Err(RiskError::Undercollateralized);
+...    |
+5992 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+5985 | /     test_visible! {
+5986 | |     fn enforce_partial_liq_post_health(&self, idx: usize, oracle_price: u64) -> Result<()> {
+5987 | |         if !self.is_above_maintenance_margin(&self.accounts[idx], idx, oracle_price) {
+5988 | |             return Err(RiskError::Undercollateralized);
+...    |
+5992 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+6181 | /     test_visible! {
+6182 | |     fn validate_keeper_hint(
+6183 | |         &self,
+6184 | |         idx: u16,
+...    |
+6254 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+6181 | /     test_visible! {
+6182 | |     fn validate_keeper_hint(
+6183 | |         &self,
+6184 | |         idx: u16,
+...    |
+6254 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+6260 | /     test_visible! {
+6261 | |     fn convert_released_pnl_core(
+6262 | |         &mut self,
+6263 | |         idx: usize,
+...    |
+6318 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+6260 | /     test_visible! {
+6261 | |     fn convert_released_pnl_core(
+6262 | |         &mut self,
+6263 | |         idx: usize,
+...    |
+6318 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:53:57
+     |
+  53 |           #[cfg(any(feature = "test", feature = "stress", kani))]
+     |                                                           ^^^^
+...
+7349 | /     test_visible! {
+7350 | |     fn advance_slot(&mut self, slots: u64) {
+7351 | |         self.current_slot = self.current_slot.saturating_add(slots);
+7352 | |     }
+7353 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:57:61
+     |
+  57 |           #[cfg(not(any(feature = "test", feature = "stress", kani)))]
+     |                                                               ^^^^
+...
+7349 | /     test_visible! {
+7350 | |     fn advance_slot(&mut self, slots: u64) {
+7351 | |         self.current_slot = self.current_slot.saturating_add(slots);
+7352 | |     }
+7353 | |     }
+     | |_____- in this macro invocation
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+     = note: this warning originates in the macro `test_visible` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+warning: unexpected `cfg` condition name: `kani`
+    --> src/percolator.rs:4043:17
+     |
+4043 |             not(kani),
+     |                 ^^^^
+     |
+     = help: consider using a Cargo feature instead
+     = help: or consider adding in `Cargo.toml` the `check-cfg` lint config for the lint:
+              [lints.rust]
+              unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
+     = help: or consider adding `println!("cargo::rustc-check-cfg=cfg(kani)");` to the top of the `build.rs`
+     = note: see <https://doc.rust-lang.org/nightly/rustc/check-cfg/cargo-specifics.html> for more information about checking conditional configuration
+
+warning: `percolator` (lib) generated 221 warnings
+warning: field `capital` is never read
+  --> percolator-sim/src/metrics/mod.rs:23:5
+   |
+21 | struct LiquidationEvent {
+   |        ---------------- field in this struct
+22 |     slot: u64,
+23 |     capital: u128,
+   |     ^^^^^^^
+   |
+   = note: `LiquidationEvent` has derived impls for the traits `Debug` and `Clone`, but these are intentionally ignored during dead code analysis
+   = note: `#[warn(dead_code)]` (part of `#[warn(unused)]`) on by default
+
+warning: `percolator-sim` (lib) generated 1 warning
+    Finished `release` profile [optimized] target(s) in 0.52s
+     Running `target/release/sim-optimize --data-dir data/ --fund-seed 50000000000 --max-iter 50 --slots 216000 --output output/optimize-multiday-20260504.txt`
+  found 7 data files in data/
+    - BTCUSDT-aggTrades-2026-04-21.csv
+    - BTCUSDT-aggTrades-2026-04-22.csv
+    - BTCUSDT-aggTrades-2026-04-23.csv
+    - BTCUSDT-aggTrades-2026-04-24.csv
+    - BTCUSDT-aggTrades-2026-04-25.csv
+    - BTCUSDT-aggTrades-2026-04-26.csv
+    - BTCUSDT-aggTrades-2026-04-27.csv
+  starting optimizer: 50 max iterations, 7 data file(s), min-scoring
+  simplex 1/8: score = -inf (1329.7s)
+  simplex 2/8: score = 0.0000000000 (1608.5s)
+  simplex 3/8: score = 0.0000000000 (1388.2s)
+  simplex 4/8: score = -inf (503.7s)
+  simplex 5/8: score = 0.0000000000 (1348.8s)
+  simplex 6/8: score = 0.0000000000 (2756.4s)
+  simplex 7/8: score = 0.0000000000 (1946.4s)
+  simplex 8/8: score = 0.0000000000 (1571.8s)
+  iter 0/50: NEW BEST = 0.0000000000 | evals=8 | elapsed=12454s | params=[752.5, 1.7829957774567873, 393.10245716318076, 3238.514955443916, 2603.1965868555003, 4720.591229088742, 2.29833106074909]
+  iter 5/50: stale=5/50 | evals=23 | elapsed=36445s
+  iter 6/50: NEW BEST = 0.0000000000 | evals=25 | elapsed=40326s | params=[488.06815393760013, 1.8595124173090651, 385.5865060332188, 3491.1353405520986, 2372.7175361427585, 4691.908937387198, 17.506852573208235]
