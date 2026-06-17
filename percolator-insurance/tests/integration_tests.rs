@@ -46,6 +46,12 @@ fn test_premium_params() -> PremiumParams {
         pool_health_high_den: 100,
         pool_health_mult_max: 5000,
         min_premium_per_slot: 1,
+        // Task 2: neutral volatility multiplier (no calibrated source).
+        volatility_mult_num: MULT_SCALE,
+        volatility_mult_den: MULT_SCALE,
+        // Task 3: tail surcharge onset at 80% of L_max, steepness 3.0x.
+        leverage_tail_threshold_bps: 8000,
+        leverage_tail_steepness: 3000,
     }
 }
 
@@ -128,6 +134,78 @@ fn test_compute_risk_index_no_positions() {
     let engine = setup_engine();
     let idx = engine.compute_risk_index(0);
     assert_eq!(idx.crowding, (MULT_SCALE, MULT_SCALE));
+}
+
+// ====================================================================
+// Task 1: crowding re-point — the MINORITY side is charged, not the majority
+// ====================================================================
+
+#[test]
+fn test_crowding_charges_minority_not_majority() {
+    // Engine socializes deficits onto the side OPPOSITE the liquidated side
+    // (enqueue_adl shifts K_opp). The crowded majority is the side that
+    // cascades into liquidation; the deficit lands on the minority. So the
+    // minority must pay the crowding penalty and the majority must not.
+    let mut engine = setup_engine();
+
+    // Build a 5x-imbalanced book directly: longs dominate.
+    engine.engine.oi_eff_long_q = 5_000_000;
+    engine.engine.oi_eff_short_q = 1_000_000;
+
+    // Account 0 = LONG (majority side). Account 1 = SHORT (minority side).
+    engine.engine.accounts[0].position_basis_q = 1_000; // pos > 0 → long
+    engine.engine.accounts[1].position_basis_q = -1_000; // pos < 0 → short
+
+    let majority_idx = engine.compute_risk_index(0); // long → majority
+    let minority_idx = engine.compute_risk_index(1); // short → minority
+
+    // Majority (long) is NOT charged → neutral.
+    assert_eq!(
+        majority_idx.crowding,
+        (MULT_SCALE, MULT_SCALE),
+        "majority (crowded) side must NOT be penalized post re-point"
+    );
+    // Minority (short) IS charged → penalty above 1.0x.
+    assert!(
+        minority_idx.crowding.0 > MULT_SCALE,
+        "minority side must bear the crowding penalty (socialization risk), got {:?}",
+        minority_idx.crowding
+    );
+}
+
+// ====================================================================
+// Task 3: leverage tail surcharge wires through compute_risk_index
+// ====================================================================
+
+#[test]
+fn test_leverage_tail_surcharge_wired() {
+    // maintenance_margin_bps = 500 → L_max = 20x, onset 16x (threshold 8000).
+    // Give account 0 a high-leverage position near the boundary.
+    let mut engine = setup_engine();
+
+    // notional ≈ pos * oracle / POS_SCALE; capital is the account's capital.
+    // Make leverage ~18x: capital 10M, notional ~180M.
+    // position_basis_q = notional * POS_SCALE / oracle.
+    let oracle = 1000u128;
+    let target_notional = 180_000_000u128;
+    let pos = (target_notional * POS_SCALE / oracle) as i128;
+    engine.engine.accounts[0].position_basis_q = pos;
+
+    let idx = engine.compute_risk_index(0);
+    // ~18x is between onset (16x) and L_max (20x) → surcharge > 1.0x.
+    assert!(
+        idx.leverage_tail.0 > MULT_SCALE,
+        "near-maintenance leverage must trigger the tail surcharge, got {:?}",
+        idx.leverage_tail
+    );
+
+    // A low-leverage account (1) with no position → neutral surcharge.
+    let idx_flat = engine.compute_risk_index(1);
+    assert_eq!(
+        idx_flat.leverage_tail,
+        (MULT_SCALE, MULT_SCALE),
+        "flat account must have neutral tail surcharge"
+    );
 }
 
 // ====================================================================

@@ -89,11 +89,15 @@ proptest! {
         crowd_num in 1u128..10_000u128,
         oiv_num in 1u128..10_000u128,
         pool_num in 1u128..10_000u128,
+        vol_num in 1u128..10_000u128,
+        tail_num in 1u128..10_000u128,
     ) {
         let idx = RiskIndex {
             crowding: (crowd_num, MULT_SCALE),
             oi_vault: (oiv_num, MULT_SCALE),
             pool_health: (pool_num, MULT_SCALE),
+            volatility: (vol_num, MULT_SCALE),
+            leverage_tail: (tail_num, MULT_SCALE),
         };
         let _ = compute_premium_per_slot(notional, capital, base_rate, &idx, 1);
     }

@@ -16,12 +16,33 @@ use crate::MULT_SCALE;
 /// A value of `(MULT_SCALE, MULT_SCALE)` represents a neutral 1.0x multiplier.
 #[derive(Clone, Copy, Debug)]
 pub struct RiskIndex {
-    /// Multiplier from OI crowding on the majority side.
+    /// Multiplier charged to the cohort that bears socialization risk.
+    ///
+    /// NOTE (Task 1 re-point): the penalized cohort is the OI *minority* side,
+    /// not the majority. The engine socializes a liquidation deficit onto the
+    /// side OPPOSITE the liquidated side (`enqueue_adl` shifts `K_opp`, where
+    /// `opp = opposite_side(liq_side)`, in `percolator.rs`). In the canonical
+    /// tail (the crowded majority cascades into liquidation), the deficit lands
+    /// on the minority counterparties — so the minority is the cohort that
+    /// actually absorbs socialized losses and must be priced for it.
     pub crowding: (u128, u128),
     /// Multiplier from system-level leverage (total OI vs vault TVL).
     pub oi_vault: (u128, u128),
     /// Multiplier from insurance pool depletion.
     pub pool_health: (u128, u128),
+    /// Multiplier from realized market volatility (gap-risk scaling).
+    ///
+    /// The covered loss is gap risk, so the premium must be able to scale with
+    /// realized volatility. Neutral (`(MULT_SCALE, MULT_SCALE)`) until a
+    /// calibrated oracle feeds a value — see `PremiumParams::volatility_mult`.
+    pub volatility: (u128, u128),
+    /// Leverage tail surcharge applied ON TOP OF the base `leverage^1.5` factor.
+    ///
+    /// Steepens the leverage multiplier as leverage approaches the maintenance
+    /// limit `1/maintenance_margin`, where the liquidation buffer collapses.
+    /// Computed by `premium::leverage_tail_surcharge`; neutral when disabled.
+    /// See `PremiumParams::leverage_tail_threshold_bps` / `_steepness`.
+    pub leverage_tail: (u128, u128),
 }
 
 impl RiskIndex {
@@ -31,6 +52,8 @@ impl RiskIndex {
             crowding: (MULT_SCALE, MULT_SCALE),
             oi_vault: (MULT_SCALE, MULT_SCALE),
             pool_health: (MULT_SCALE, MULT_SCALE),
+            volatility: (MULT_SCALE, MULT_SCALE),
+            leverage_tail: (MULT_SCALE, MULT_SCALE),
         }
     }
 }
@@ -39,20 +62,31 @@ impl RiskIndex {
 // crowding_multiplier
 // ============================================================================
 
-/// Penalizes accounts on the dominant OI side.
+/// Penalizes accounts on the cohort that bears socialization risk, scaling
+/// with the severity of the OI imbalance.
 ///
 /// Returns `(num, MULT_SCALE)` where `num / MULT_SCALE` is the multiplier.
 ///
+/// # Re-point (Task 1)
+/// The *charged* cohort is the OI MINORITY, not the majority. The engine
+/// socializes liquidation deficits onto the side opposite the liquidated side
+/// (`enqueue_adl` in `percolator.rs` shifts `K_opp`). When the crowded majority
+/// cascades into liquidation, the deficit lands on the minority counterparties,
+/// so the minority is the cohort that must be priced for socialization. The
+/// caller (`compute_risk_index`) sets `is_charged_side = true` for the minority.
+/// The `oi_majority / oi_minority` ratio still measures imbalance severity.
+///
 /// # Parameters
-/// - `oi_majority`: larger OI side
-/// - `oi_minority`: smaller OI side
-/// - `is_majority_side`: whether this account is on the crowded side
+/// - `oi_majority`: larger OI side (used as the ratio numerator)
+/// - `oi_minority`: smaller OI side (used as the ratio denominator)
+/// - `is_charged_side`: whether this account is on the cohort being charged
+///   (the minority, post re-point)
 /// - `low_ratio_num / low_ratio_den`: ratio threshold below which multiplier is 1.0
 /// - `high_ratio_num / high_ratio_den`: ratio above which multiplier is capped
 /// - `cap`: maximum multiplier scaled by MULT_SCALE
 ///
 /// # Logic
-/// - Minority side → always 1.0
+/// - Not the charged side → always 1.0
 /// - `oi_minority == 0` → cap
 /// - `ratio <= low_threshold` → 1.0
 /// - `ratio >= high_threshold` → cap
@@ -60,7 +94,7 @@ impl RiskIndex {
 pub fn crowding_multiplier(
     oi_majority: u128,
     oi_minority: u128,
-    is_majority_side: bool,
+    is_charged_side: bool,
     low_ratio_num: u128,
     low_ratio_den: u128,
     high_ratio_num: u128,
@@ -69,7 +103,7 @@ pub fn crowding_multiplier(
 ) -> (u128, u128) {
     const ONE: (u128, u128) = (MULT_SCALE, MULT_SCALE);
 
-    if !is_majority_side {
+    if !is_charged_side {
         return ONE;
     }
 

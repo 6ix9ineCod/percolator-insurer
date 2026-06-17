@@ -6,7 +6,7 @@
 //! 3. Reconcile pool with insurance fund balance
 
 use crate::pool::PremiumPool;
-use crate::premium::compute_premium_per_slot;
+use crate::premium::{compute_premium_per_slot, leverage_tail_surcharge};
 use crate::risk_index::{
     crowding_multiplier, oi_vault_multiplier, pool_health_multiplier, RiskIndex,
 };
@@ -36,6 +36,39 @@ pub struct PremiumParams {
     pub pool_health_high_den: u128,
     pub pool_health_mult_max: u128,
     pub min_premium_per_slot: u128,
+
+    // ── Task 2: realized-volatility multiplier (governance param) ────────────
+    /// Governance-set realized-volatility multiplier `(num, den)`, scaled by
+    /// `MULT_SCALE`. Default neutral `(MULT_SCALE, MULT_SCALE)` = 1.0x.
+    ///
+    /// CALIBRATION REQUIRED: a production deployment MUST feed an
+    /// oracle-realized-volatility multiplier here (e.g. EWMA/realized-vol of the
+    /// mark over a trailing window, normalised so 1.0x = baseline vol). The
+    /// covered loss is gap risk, which scales with volatility; leaving this
+    /// neutral under-prices premiums in turbulent regimes. There is no
+    /// calibrated on-chain vol source in this crate yet, so `compute_risk_index`
+    /// passes this param straight through unchanged.
+    pub volatility_mult_num: u128,
+    pub volatility_mult_den: u128,
+
+    // ── Task 3: leverage tail-surcharge (governance params) ──────────────────
+    /// Fraction of the maintenance-margin limit (`1/maintenance_margin_bps`)
+    /// at which the tail surcharge begins, in basis points of that limit.
+    /// e.g. `8000` = surcharge starts once leverage reaches 80% of the maximum
+    /// permissible leverage `L_max = 10_000 / maintenance_margin_bps`.
+    ///
+    /// CALIBRATION REQUIRED: the exact onset/steepness of this curve must be fit
+    /// to an empirical loss distribution near the maintenance boundary, where
+    /// the liquidation buffer collapses and `leverage^1.5` under-prices the tail.
+    pub leverage_tail_threshold_bps: u128,
+    /// Steepness of the tail surcharge at the maintenance boundary, scaled by
+    /// `MULT_SCALE`. The surcharge multiplier ramps linearly from 1.0x at the
+    /// threshold to `1.0x + (steepness/MULT_SCALE)` as leverage reaches
+    /// `L_max`. e.g. `3000` (3.0 in MULT_SCALE) → up to a 4.0x surcharge at the
+    /// boundary, multiplied on top of the existing `leverage^1.5` factor.
+    ///
+    /// CALIBRATION REQUIRED: fit to the loss distribution (see above).
+    pub leverage_tail_steepness: u128,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -109,10 +142,30 @@ impl InsuredRiskEngine {
         let pp = &self.premium_params;
 
         let pos = self.engine.accounts[account_idx].position_basis_q;
-        let (majority_oi, minority_oi, is_majority) = if long_oi >= short_oi {
-            (long_oi, short_oi, pos > 0)
+        // Task 1 RE-POINT: charge the MINORITY side, not the majority.
+        //
+        // The engine socializes a liquidation deficit onto the side OPPOSITE the
+        // liquidated side: `enqueue_adl` (percolator.rs) computes
+        // `opp = opposite_side(liq_side)` and shifts `K_opp` downward by
+        // `delta_k_abs = ceil(D_rem * A_old * POS_SCALE / OI)`. So the cohort
+        // that actually absorbs a socialized deficit is the counterparty to the
+        // liquidated side. In the canonical tail (the crowded MAJORITY cascades
+        // into liquidation when the market moves against it), the deficit lands
+        // on the MINORITY counterparties. Therefore the minority side bears the
+        // socialization risk and must be priced for it — the old code penalized
+        // the majority, which is the side that is liquidating, not the side that
+        // pays for it.
+        //
+        // We keep `crowding_multiplier`'s contract (it penalizes whichever side
+        // we flag as the charged side) and flip the flag: pass `true` when this
+        // account sits on the minority side. The ratio `majority/minority` still
+        // measures the imbalance severity.
+        let (majority_oi, minority_oi, is_charged_side) = if long_oi >= short_oi {
+            // longs are the majority → shorts (pos < 0) are the charged minority
+            (long_oi, short_oi, pos < 0)
         } else {
-            (short_oi, long_oi, pos < 0)
+            // shorts are the majority → longs (pos > 0) are the charged minority
+            (short_oi, long_oi, pos > 0)
         };
 
         let crowding = if pos == 0 {
@@ -121,7 +174,7 @@ impl InsuredRiskEngine {
             crowding_multiplier(
                 majority_oi,
                 minority_oi,
-                is_majority,
+                is_charged_side,
                 pp.crowding_low_ratio_num,
                 pp.crowding_low_ratio_den,
                 pp.crowding_high_ratio_num,
@@ -157,10 +210,31 @@ impl InsuredRiskEngine {
             pp.pool_health_mult_max,
         );
 
+        // Task 2: realized-volatility multiplier. No calibrated on-chain vol
+        // source exists in this crate, so we pass the governance param straight
+        // through. CALIBRATION REQUIRED: feed an oracle-realized-volatility
+        // multiplier into `PremiumParams::volatility_mult_*` in production.
+        let volatility = (pp.volatility_mult_num, pp.volatility_mult_den);
+
+        // Task 3: leverage tail surcharge. Maintenance margin is read from the
+        // engine's live RiskParams (`maintenance_margin_bps`), so the surcharge
+        // tracks the actual maintenance limit `L_max = 10_000 / mm_bps`.
+        let notional = self.account_notional(account_idx);
+        let capital = self.engine.accounts[account_idx].capital.get();
+        let leverage_tail = leverage_tail_surcharge(
+            notional,
+            capital,
+            self.engine.params.maintenance_margin_bps as u128,
+            pp.leverage_tail_threshold_bps,
+            pp.leverage_tail_steepness,
+        );
+
         RiskIndex {
             crowding,
             oi_vault,
             pool_health,
+            volatility,
+            leverage_tail,
         }
     }
 

@@ -352,6 +352,193 @@ fn gcd(mut a: u128, mut b: u128) -> u128 {
 }
 
 // ============================================================================
+// Leverage tail-surcharge (Task 3)
+// ============================================================================
+
+/// Pure-integer leverage tail surcharge as a `(num, den)` pair scaled by
+/// [`MULT_SCALE`].
+///
+/// # Why
+/// The base leverage factor (`leverage^1.5`) under-prices the tail as leverage
+/// approaches the maintenance limit. The maximum permissible leverage is
+/// `L_max = 10_000 / maintenance_margin_bps` (the reciprocal of the maintenance
+/// margin). As leverage approaches `L_max`, the liquidation buffer between the
+/// position's equity and the bankruptcy point collapses, so the probability the
+/// engine cannot close the position without a socialized deficit rises sharply.
+/// This surcharge steepens the leverage multiplier in exactly that region.
+///
+/// # Curve
+/// Let `L` = current leverage, `L_max = 10_000 / maintenance_margin_bps`, and
+/// `L_on = L_max * threshold_bps / 10_000` the onset leverage. Then:
+/// - `L <= L_on`            → 1.0x (neutral)
+/// - `L_on < L < L_max`     → linear ramp `1.0 + position * steepness`
+///   where `position = (L - L_on) / (L_max - L_on)`
+/// - `L >= L_max`           → `1.0 + steepness` (capped)
+///
+/// `steepness` is in `MULT_SCALE` units (e.g. 3000 = +3.0x at the boundary,
+/// giving a 4.0x surcharge). The result is multiplied ON TOP OF the existing
+/// `leverage^1.5` factor, so the effective leverage exponent rises near the
+/// boundary without rewriting the base curve.
+///
+/// Returns neutral `(MULT_SCALE, MULT_SCALE)` when disabled or undefined:
+/// `capital == 0`, `notional == 0`, `maintenance_margin_bps == 0`,
+/// `steepness == 0`, or `threshold_bps >= 10_000` (degenerate onset == L_max).
+///
+/// CALIBRATION REQUIRED: the onset (`threshold_bps`) and slope (`steepness`)
+/// are governance defaults. The exact curve MUST be fit to an empirical loss
+/// distribution near the maintenance boundary — a linear ramp is a deliberately
+/// simple, conservative placeholder, not a calibrated tail model.
+pub fn leverage_tail_surcharge(
+    notional: u128,
+    capital: u128,
+    maintenance_margin_bps: u128,
+    threshold_bps: u128,
+    steepness: u128,
+) -> (u128, u128) {
+    const ONE: (u128, u128) = (MULT_SCALE, MULT_SCALE);
+
+    if capital == 0
+        || notional == 0
+        || maintenance_margin_bps == 0
+        || steepness == 0
+        || threshold_bps >= 10_000
+    {
+        return ONE;
+    }
+
+    // Work in LEVERAGE_SCALE fixed-point for L, L_on, L_max.
+    //   lev_scaled = notional * LEVERAGE_SCALE / capital   (1.0x = LEVERAGE_SCALE)
+    let lev_scaled = match notional.checked_mul(LEVERAGE_SCALE) {
+        Some(v) => v / capital,
+        None => (notional / capital).saturating_mul(LEVERAGE_SCALE),
+    };
+
+    // L_max = 10_000 / maintenance_margin_bps, in LEVERAGE_SCALE units:
+    //   lmax_scaled = 10_000 * LEVERAGE_SCALE / maintenance_margin_bps
+    let lmax_scaled = LEVERAGE_SCALE
+        .saturating_mul(10_000)
+        / maintenance_margin_bps;
+
+    // Onset L_on = L_max * threshold_bps / 10_000, in LEVERAGE_SCALE units.
+    let lon_scaled = lmax_scaled.saturating_mul(threshold_bps) / 10_000;
+
+    // Below onset → neutral.
+    if lev_scaled <= lon_scaled {
+        return ONE;
+    }
+
+    let max_num = MULT_SCALE.saturating_add(steepness);
+
+    // At or beyond L_max → full surcharge (cap).
+    if lev_scaled >= lmax_scaled {
+        return (max_num, MULT_SCALE);
+    }
+
+    // Linear interpolation between onset (1.0x) and L_max (1.0 + steepness).
+    //   position = (lev - L_on) / (L_max - L_on)
+    //   num = MULT_SCALE + position * steepness
+    let range = lmax_scaled.saturating_sub(lon_scaled);
+    if range == 0 {
+        return (max_num, MULT_SCALE);
+    }
+    let delta = lev_scaled.saturating_sub(lon_scaled);
+    let bump = delta.saturating_mul(steepness) / range;
+    let num = MULT_SCALE.saturating_add(bump);
+
+    (num, MULT_SCALE)
+}
+
+// ============================================================================
+// base_rate calibration helper (Task 4)
+// ============================================================================
+
+/// Derive a `base_rate_per_slot` from observed loss experience and a target
+/// loss ratio.
+///
+/// # Background
+/// `base_rate` is otherwise an **uncalibrated free parameter** — nothing in this
+/// crate fixes its level; it is a governance dial. This helper is how a
+/// deployment would set it from real data: given a target loss ratio and the
+/// realized claims/exposure, it solves for the per-slot base rate that, applied
+/// across the observed exposure, would have produced premiums hitting that
+/// target loss ratio.
+///
+/// # Model
+/// Loss ratio `L = cumulative_claims / total_premium`. We want premium such
+/// that `L = target`, i.e. `total_premium = cumulative_claims / target`.
+/// Premium scales linearly with `base_rate` and with exposure
+/// (`notional · slots`), so with all multipliers neutral:
+///   `total_premium ≈ base_rate · exposure / PREMIUM_SCALE`
+/// Solving for `base_rate`:
+///   `base_rate = cumulative_claims · PREMIUM_SCALE / (target · exposure)`
+/// With `target = target_loss_ratio_num / target_loss_ratio_den`:
+///   `base_rate = cumulative_claims · PREMIUM_SCALE · target_den
+///                / (target_num · exposure)`
+///
+/// A lower target loss ratio (more conservative / more loaded) yields a higher
+/// base rate. `target_num = target_den` is break-even (loss ratio 1.0).
+///
+/// Returns 0 when uncalibratable: `observed_exposure == 0`,
+/// `cumulative_claims == 0`, or `target_loss_ratio_num == 0`.
+///
+/// `observed_exposure` is cumulative `notional · slots` (the same product the
+/// per-slot premium integrates over), and the returned value is in
+/// `PREMIUM_SCALE` units so it plugs straight into
+/// [`compute_premium_per_slot`]'s `base_rate` slot.
+///
+/// CALIBRATION REQUIRED: this is a first-order point estimate from realized
+/// experience. A production calibration should instead target a ruin
+/// probability against a fitted loss *distribution* (not just the empirical
+/// mean) and re-estimate on a rolling window; this helper documents the
+/// mechanism and provides the break-even anchor.
+pub fn calibrate_base_rate(
+    target_loss_ratio_num: u128,
+    target_loss_ratio_den: u128,
+    cumulative_claims: u128,
+    observed_exposure: u128,
+) -> u128 {
+    if observed_exposure == 0
+        || cumulative_claims == 0
+        || target_loss_ratio_num == 0
+        || target_loss_ratio_den == 0
+    {
+        return 0;
+    }
+
+    // base_rate = claims * PREMIUM_SCALE * target_den / (target_num * exposure)
+    //
+    // Reduce by GCD where possible to keep the products in range, mirroring the
+    // overflow-safe style used elsewhere in this module.
+    let g1 = gcd(cumulative_claims, observed_exposure);
+    let claims_r = cumulative_claims / g1;
+    let exposure_r = observed_exposure / g1;
+
+    let g2 = gcd(target_loss_ratio_num, target_loss_ratio_den);
+    let t_num = target_loss_ratio_num / g2;
+    let t_den = target_loss_ratio_den / g2;
+
+    // numerator = claims_r * PREMIUM_SCALE * t_den
+    // denominator = exposure_r * t_num
+    // Use saturating products; if the numerator overflows we divide first.
+    let denom = exposure_r.saturating_mul(t_num);
+    if denom == 0 {
+        return 0;
+    }
+
+    match claims_r
+        .checked_mul(PREMIUM_SCALE)
+        .and_then(|v| v.checked_mul(t_den))
+    {
+        Some(numer) => numer / denom,
+        None => {
+            // Divide first to avoid overflow (slight precision loss, safe).
+            let partial = claims_r.saturating_mul(PREMIUM_SCALE) / denom.max(1);
+            partial.saturating_mul(t_den)
+        }
+    }
+}
+
+// ============================================================================
 // Full premium calculation
 // ============================================================================
 
@@ -359,8 +546,8 @@ fn gcd(mut a: u128, mut b: u128) -> u128 {
 ///
 /// # Formula
 /// ```text
-/// premium = notional × base_rate × lev_num × crowd_num × oiv_num × pool_num
-///           ÷ (PREMIUM_SCALE × lev_den × crowd_den × oiv_den × pool_den)
+/// premium = notional × base_rate × lev_num × crowd_num × oiv_num × pool_num × vol_num × tail_num
+///           ÷ (PREMIUM_SCALE × lev_den × crowd_den × oiv_den × pool_den × vol_den × tail_den)
 /// ```
 /// Result is ceiling-divided, then floored at `min_premium`.
 ///
@@ -382,6 +569,14 @@ pub fn compute_premium_per_slot(
     let (crowd_num, crowd_den) = risk_idx.crowding;
     let (oiv_num, oiv_den) = risk_idx.oi_vault;
     let (pool_num, pool_den) = risk_idx.pool_health;
+    // Task 2: realized-volatility multiplier (gap-risk scaling). Folded in
+    // identically to the other multipliers; neutral leaves the premium
+    // unchanged.
+    let (vol_num, vol_den) = risk_idx.volatility;
+    // Task 3: leverage tail surcharge, applied on top of the base leverage^1.5
+    // factor. Neutral when the position is below the maintenance-proximity
+    // threshold or the surcharge is disabled.
+    let (tail_num, tail_den) = risk_idx.leverage_tail;
 
     // Build numerator: notional × base_rate × lev_num × crowd_num × oiv_num × pool_num
     // Use GCD reduction at each step to prevent overflow.
@@ -444,6 +639,8 @@ pub fn compute_premium_per_slot(
     mul_component!(num, den, crowd_num, crowd_den, min_premium);
     mul_component!(num, den, oiv_num, oiv_den, min_premium);
     mul_component!(num, den, pool_num, pool_den, min_premium);
+    mul_component!(num, den, vol_num, vol_den, min_premium);
+    mul_component!(num, den, tail_num, tail_den, min_premium);
 
     // Final GCD reduction
     let g = gcd(num, den);

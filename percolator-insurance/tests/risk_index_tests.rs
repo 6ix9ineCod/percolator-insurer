@@ -13,6 +13,13 @@ fn test_risk_index_neutral() {
     assert_eq!(ri.pool_health, (MULT_SCALE, MULT_SCALE));
 }
 
+// Task 2: the realized-volatility multiplier must default to neutral.
+#[test]
+fn test_risk_index_neutral_volatility() {
+    let ri = RiskIndex::neutral();
+    assert_eq!(ri.volatility, (MULT_SCALE, MULT_SCALE));
+}
+
 // ============================================================================
 // crowding_multiplier tests
 // ============================================================================
