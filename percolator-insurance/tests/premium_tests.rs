@@ -547,3 +547,25 @@ fn test_premium_saturates_up_on_multiplier_overflow() {
         "multiplier overflow must saturate up, not drop to min_premium; got {p}"
     );
 }
+
+#[test]
+fn test_system_index_scaled_neutral_is_one() {
+    use percolator_insurance::premium::compute_system_index_scaled;
+    let s = compute_system_index_scaled(
+        (MULT_SCALE, MULT_SCALE),
+        (MULT_SCALE, MULT_SCALE),
+        (MULT_SCALE, MULT_SCALE),
+    );
+    assert_eq!(s, MULT_SCALE);
+}
+
+#[test]
+fn test_system_index_scaled_multiplies() {
+    use percolator_insurance::premium::compute_system_index_scaled;
+    let s = compute_system_index_scaled(
+        (2 * MULT_SCALE, MULT_SCALE),
+        (3 * MULT_SCALE, MULT_SCALE),
+        (MULT_SCALE, MULT_SCALE),
+    );
+    assert_eq!(s, 6 * MULT_SCALE);
+}

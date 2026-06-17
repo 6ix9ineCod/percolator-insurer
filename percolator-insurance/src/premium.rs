@@ -350,6 +350,44 @@ fn gcd(mut a: u128, mut b: u128) -> u128 {
 }
 
 // ============================================================================
+// System index (global accumulator)
+// ============================================================================
+
+/// Collapse the three account-independent system multipliers
+/// (`oi_vault × pool_health × volatility`) into a single scalar in `MULT_SCALE`
+/// units (`MULT_SCALE` == 1.0). Used by the global accrual accumulator.
+///
+/// `S = (oiv_num·pool_num·vol_num·MULT_SCALE) / (oiv_den·pool_den·vol_den)`,
+/// GCD-reduced step by step, saturating to `u128::MAX` on true overflow
+/// (conservative — consistent with the premium overflow policy).
+pub fn compute_system_index_scaled(
+    oi_vault: (u128, u128),
+    pool_health: (u128, u128),
+    volatility: (u128, u128),
+) -> u128 {
+    let mut num: u128 = MULT_SCALE;
+    let mut den: u128 = 1;
+    for (c_num, c_den) in [oi_vault, pool_health, volatility] {
+        if c_den == 0 {
+            continue;
+        }
+        let g1 = gcd(num, c_den);
+        num /= g1;
+        let c_den_r = c_den / g1;
+        let g2 = gcd(c_num, den);
+        let c_num_r = c_num / g2;
+        den /= g2;
+        num = num.saturating_mul(c_num_r);
+        den = den.saturating_mul(c_den_r);
+    }
+    if den == 0 {
+        return u128::MAX;
+    }
+    let g = gcd(num, den);
+    (num / g) / (den / g)
+}
+
+// ============================================================================
 // Leverage tail-surcharge (Task 3)
 // ============================================================================
 
