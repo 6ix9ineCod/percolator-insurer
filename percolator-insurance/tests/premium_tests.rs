@@ -480,3 +480,49 @@ fn test_premium_min_floor() {
         result
     );
 }
+
+#[test]
+fn test_premium_base_rate_overflow_saturates_not_drops_factor() {
+    // Engineer finding #4 (WS3 Task 1): the `notional × base_rate` step has a
+    // fallback that, when even the GCD-reduced product overflows u128, used to
+    // do `num = num / base_rate.max(1) * base_rate`. With `num < base_rate`
+    // that floors to 0 — SILENTLY DROPPING the `× base_rate` factor (and the
+    // whole numerator). The correct conservative behavior is to SATURATE the
+    // premium upward (toward u128::MAX), never to under-price by a factor of
+    // base_rate.
+    //
+    // Construction that forces the deep overflow path with `num < base_rate`:
+    //   notional   = 2_000_000_000  (= 2 × PREMIUM_SCALE)
+    //   base_rate  = u128::MAX
+    //   capital    huge → leverage ≤ 1.0 → leverage multiplier neutral
+    //   index neutral, min_premium = 0
+    //
+    // Step 1: num = notional = 2e9, den = PREMIUM_SCALE = 1e9.
+    //   num.checked_mul(base_rate) = 2e9 × u128::MAX  → overflow.
+    // Step 2: g = gcd(2e9, 1e9) = 1e9 → num = 2, den = 1.
+    //   num.checked_mul(base_rate) = 2 × u128::MAX    → overflow again.
+    // Step 3 (the buggy fallback): num = 2 / u128::MAX × u128::MAX = 0.
+    //   → premium collapses to 0 / min_premium.
+    //
+    // True premium ≈ notional × base_rate / PREMIUM_SCALE
+    //             = 2e9 × u128::MAX / 1e9 = 2 × u128::MAX  (≫ u128::MAX),
+    // so a correct engine saturates to u128::MAX.
+    let idx = RiskIndex::neutral();
+    let notional: u128 = 2_000_000_000; // 2 × PREMIUM_SCALE
+    let base_rate: u128 = u128::MAX;
+    let capital: u128 = u128::MAX; // leverage ≤ 1.0 ⇒ neutral leverage factor
+    let min_premium: u128 = 0;
+
+    let result = compute_premium_per_slot(notional, capital, base_rate, &idx, min_premium);
+
+    // The silent-drop bug yields ~0 here. A conservative, correct engine must
+    // saturate. Assert the result is astronomically large (clearly NOT the
+    // dropped-factor value). Lower bound is generous but far above any value
+    // the buggy path could ever produce (which is 0..=min_premium).
+    assert!(
+        result > u128::MAX / 2,
+        "overflow fallback must saturate upward, not drop the base_rate factor; \
+         got {} (silent-drop bug yields ~0)",
+        result
+    );
+}

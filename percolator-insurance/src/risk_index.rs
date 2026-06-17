@@ -91,6 +91,10 @@ impl RiskIndex {
 /// - `ratio <= low_threshold` → 1.0
 /// - `ratio >= high_threshold` → cap
 /// - Otherwise → linear interpolation between 1.0 and cap
+// Threshold ratios are passed as explicit (num, den) pairs to stay no_std /
+// allocation-free and float-free; grouping them into a struct would not improve
+// the call sites and the params are positionally documented above.
+#[allow(clippy::too_many_arguments)]
 pub fn crowding_multiplier(
     oi_majority: u128,
     oi_minority: u128,

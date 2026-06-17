@@ -21,7 +21,7 @@ pub fn isqrt(n: u128) -> u128 {
     // Use bit-length based initial guess: 2^ceil(bits/2).
     // Starting at n itself would cause (n+1)/2 to overflow for n=u128::MAX.
     let bits = 128u32 - n.leading_zeros();
-    let shift = (bits + 1) / 2;  // ceil(bits / 2)
+    let shift = bits.div_ceil(2);
     let shift = shift.min(64);    // sqrt(u128::MAX) < 2^64
     let mut x: u128 = if shift == 64 {
         (u64::MAX as u128) + 1
@@ -61,7 +61,7 @@ pub fn inth_root(n: u128, k: u32) -> u128 {
 
     // Initial guess: 2^ceil(bit_length(n) / k)
     let bits = 128 - n.leading_zeros(); // bit_length(n)
-    let shift = (bits + k - 1) / k;    // ceil(bits / k)
+    let shift = bits.div_ceil(k);
     let shift = shift.min(127);         // cap to avoid overflow on 1u128 << 128
     let mut x: u128 = 1u128 << shift;
 
@@ -338,9 +338,7 @@ fn gcd(mut a: u128, mut b: u128) -> u128 {
     loop {
         // a and b are both odd here
         if a > b {
-            let tmp = a;
-            a = b;
-            b = tmp;
+            core::mem::swap(&mut a, &mut b);
         }
         // b >= a; subtract then remove factors of 2
         b -= a;
@@ -583,20 +581,35 @@ pub fn compute_premium_per_slot(
     let mut num: u128 = notional;
     let mut den: u128 = PREMIUM_SCALE;
 
-    // Multiply in base_rate
+    // Multiply in base_rate.
+    //
+    // If `num × base_rate` overflows even after GCD-reducing `num` against
+    // `den`, the true numerator already exceeds u128::MAX. Because every
+    // canonical risk multiplier is ≥ 1.0 (each floors at `MULT_SCALE`), the
+    // final premium is then ≥ this saturated numerator divided by `den`, which
+    // is itself far above any representable premium. The CONSERVATIVE answer is
+    // therefore the maximum representable premium — we short-circuit to it.
+    //
+    // The previous fallback (`num = num / base_rate.max(1) * base_rate`) floored
+    // to ~num (silently DROPPING the `× base_rate` factor) or, when
+    // `num < base_rate`, to 0 (collapsing the entire numerator) — under-pricing
+    // by a factor of `base_rate`. That is the bug this fixes (engineer #4).
     num = match num.checked_mul(base_rate) {
         Some(v) => v,
         None => {
-            // Reduce first
+            // Reduce first.
             let g = gcd(num, den);
             num /= g;
             den /= g;
             match num.checked_mul(base_rate) {
                 Some(v) => v,
                 None => {
-                    // Still too large — partial divide to reduce magnitude
-                    num = num / base_rate.max(1) * base_rate;
-                    num
+                    // Still overflows → true product > u128::MAX. Saturate the
+                    // PREMIUM upward and return immediately (conservative
+                    // over-pricing), never silently dropping the factor.
+                    // u128::MAX already dominates `min_premium`, so it is the
+                    // floored result.
+                    return u128::MAX;
                 }
             }
         }

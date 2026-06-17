@@ -17,6 +17,11 @@
 #![no_std]
 #![forbid(unsafe_code)]
 
+// Kani formal verification: pull in the verifier's prelude under `cargo kani`
+// only. Has no effect on (and is not compiled by) normal build/test/clippy.
+#[cfg(kani)]
+extern crate kani;
+
 pub use percolator::{
     Account, InsuranceFund, RiskEngine, RiskError, RiskParams,
     Result as PercolatorResult, Side, MarketMode, LiquidationPolicy,
@@ -28,6 +33,12 @@ pub mod premium;
 pub mod pool;
 pub mod risk_index;
 pub mod wrapper;
+
+// Formal-verification proof harnesses. Compiled ONLY under `cargo kani`; absent
+// from normal `cargo build`/`test`/`clippy`, so it adds zero code/warnings to
+// the production build.
+#[cfg(kani)]
+mod kani_harness;
 
 pub use pool::PremiumPool;
 pub use premium::{compute_premium_per_slot, isqrt, leverage_multiplier};

@@ -19,3 +19,9 @@ proptest = "1.4"
 default = []
 test = []
 serde = ["dep:serde"]
+
+# Declare the `kani` cfg so the Kani proof harnesses (gated behind
+# `#[cfg(kani)]`, compiled only under `cargo kani`) do not emit
+# `unexpected_cfgs` warnings on the normal `cargo build`/`test`/`clippy` path.
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }
