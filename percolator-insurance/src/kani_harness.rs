@@ -296,3 +296,38 @@ fn kani_premium_monotonic_in_leverage() {
 
     assert!(p_high_lev >= p_low_lev);
 }
+
+// ============================================================================
+// premium.rs — system index accumulator + interval premium
+// ============================================================================
+
+/// `compute_system_index_scaled` never panics for bounded inputs whose
+/// denominators are non-zero (the ratios are validated non-zero-denominator at
+/// construction in production). Bounding the numerators/denominators to u32 keeps
+/// the fixed-point arithmetic tractable; each denominator is forced `>= 1`.
+#[kani::proof]
+fn kani_system_index_scaled_no_panic() {
+    let a: u128 = kani::any::<u32>() as u128;
+    let b: u128 = kani::any::<u32>() as u128;
+    let c: u128 = kani::any::<u32>() as u128;
+    // denominators non-zero (validated at construction)
+    let _ = crate::premium::compute_system_index_scaled(
+        (a, 1.max(b)), (c, 1.max(a)), (b, 1.max(c)),
+    );
+}
+
+/// `compute_interval_premium` is monotonic NON-DECREASING in the accumulated
+/// system index: holding notional / base / leverage / crowd / min fixed, a larger
+/// `system_accrued` never lowers the interval premium.
+#[kani::proof]
+fn kani_interval_premium_monotonic_in_accrued() {
+    let notional = kani::any::<u16>() as u128;
+    let base = kani::any::<u16>() as u128;
+    let lev = crate::MULT_SCALE + kani::any::<u8>() as u128;
+    let crowd = crate::MULT_SCALE + kani::any::<u8>() as u128;
+    let a1 = kani::any::<u16>() as u128;
+    let a2 = a1 + (kani::any::<u8>() as u128);
+    let p1 = crate::premium::compute_interval_premium(notional, base, lev, crowd, a1, 1);
+    let p2 = crate::premium::compute_interval_premium(notional, base, lev, crowd, a2, 1);
+    assert!(p2 >= p1);
+}
