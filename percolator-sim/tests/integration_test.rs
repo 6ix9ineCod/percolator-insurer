@@ -24,6 +24,15 @@ fn test_premium_params() -> PremiumParams {
         pool_health_high_den: 100,
         pool_health_mult_max: 5000,
         min_premium_per_slot: 1,
+        // Disabled: preserve pre-existing sim economics (opt in to price these later)
+        volatility_mult_num: 1_000,
+        volatility_mult_den: 1_000,
+        leverage_tail_threshold_bps: 10_000,
+        leverage_tail_steepness: 0,
+        collection_maint_buffer_bps: 0,
+        max_oracle_deviation_bps: 0,
+        max_oracle_staleness_slots: 0,
+        require_authorization: false,
     }
 }
 
