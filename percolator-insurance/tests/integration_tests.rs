@@ -620,6 +620,22 @@ fn test_wrapper_rejects_zero_volatility_den() {
 }
 
 #[test]
+fn test_activate_seeds_snapshot_and_leverage() {
+    let mut engine = setup_engine();
+    let oracle = 1000u64;
+    engine.accrue(5); // advance the global accumulator first
+    engine
+        .execute_trade(0, 1, oracle, 6, make_size_q(10), oracle, 0, 0, 100, None)
+        .unwrap();
+    assert_eq!(
+        engine.account_premiums[0].cum_system_snapshot,
+        engine.cum_system_index
+    );
+    assert!(engine.account_premiums[0].last_leverage_factor >= MULT_SCALE,
+        "leverage factor must be >= 1.0");
+}
+
+#[test]
 fn test_accrue_global_is_monotonic_and_advances() {
     let mut engine = setup_engine();
     let start = engine.cum_system_index;

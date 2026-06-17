@@ -73,7 +73,7 @@
 //! `test_pool_records_only_actual_collection_when_capital_insufficient`.
 
 use crate::pool::PremiumPool;
-use crate::premium::{compute_premium_per_slot, leverage_tail_surcharge};
+use crate::premium::{compute_premium_per_slot, leverage_multiplier, leverage_tail_surcharge};
 use crate::risk_index::{
     crowding_multiplier, oi_vault_multiplier, pool_health_multiplier, RiskIndex,
 };
@@ -204,6 +204,10 @@ pub struct AccountPremiumState {
     pub commitment_end_slot: u64,
     pub prepaid_premium: u128,
     pub is_active: bool,
+    /// `cum_system_index` snapshot at this account's last touch.
+    pub cum_system_snapshot: u128,
+    /// `leverage_mult × tail` sampled at last touch (max-of-endpoints input).
+    pub last_leverage_factor: u128,
 }
 
 impl AccountPremiumState {
@@ -213,6 +217,8 @@ impl AccountPremiumState {
             commitment_end_slot: 0,
             prepaid_premium: 0,
             is_active: false,
+            cum_system_snapshot: 0,
+            last_leverage_factor: 0,
         }
     }
 }
@@ -393,6 +399,24 @@ impl InsuredRiskEngine {
         }
         let abs_pos = pos.unsigned_abs();
         abs_pos.saturating_mul(self.engine.last_oracle_price as u128) / POS_SCALE
+    }
+
+    /// Combined leverage factor `leverage_mult × tail_surcharge` in MULT_SCALE
+    /// units (1.0 == MULT_SCALE). Account-specific; the max of consecutive
+    /// samples is charged (anti-flicker).
+    fn leverage_factor(&self, account_idx: usize, notional: u128) -> u128 {
+        let capital = self.engine.accounts[account_idx].capital.get();
+        let (lev_num, lev_den) = leverage_multiplier(notional, capital, 3, 2);
+        let tail = leverage_tail_surcharge(
+            notional, capital,
+            self.engine.params.maintenance_margin_bps as u128,
+            self.premium_params.leverage_tail_threshold_bps,
+            self.premium_params.leverage_tail_steepness,
+        );
+        let num = lev_num.saturating_mul(tail.0);
+        let den = lev_den.saturating_mul(tail.1) / MULT_SCALE.max(1);
+        if den == 0 { return MULT_SCALE; }
+        (num / den).max(MULT_SCALE)
     }
 
     // ====================================================================
@@ -832,6 +856,8 @@ impl InsuredRiskEngine {
             commitment_end_slot: now_slot.saturating_add(self.premium_params.min_commitment_slots),
             prepaid_premium: charged,
             is_active: true,
+            cum_system_snapshot: self.cum_system_index,
+            last_leverage_factor: self.leverage_factor(i, notional),
         };
 
         Ok(())
