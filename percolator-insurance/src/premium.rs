@@ -575,6 +575,71 @@ pub fn calibrate_base_rate(
 }
 
 // ============================================================================
+// Interval premium (time-integrated)
+// ============================================================================
+
+/// Premium for an accrual interval, integrating the system risk over time.
+///
+/// ```text
+/// premium = notional × base_rate × lev_charged × crowd × system_accrued
+///           ÷ (PREMIUM_SCALE × MULT_SCALE³)
+/// ```
+/// `lev_charged` and `crowd` are in MULT_SCALE units; `system_accrued` is
+/// `Σ system_index_scaled · dt` (carrying one MULT_SCALE). For a constant system
+/// index and leverage this equals `compute_premium_per_slot × slots`. Floored at
+/// `min_premium`; saturates UP on true overflow.
+pub fn compute_interval_premium(
+    notional: u128,
+    base_rate: u128,
+    lev_charged: u128,
+    crowd: u128,
+    system_accrued: u128,
+    min_premium: u128,
+) -> u128 {
+    if notional == 0 || system_accrued == 0 {
+        return min_premium;
+    }
+    let den0 = PREMIUM_SCALE
+        .saturating_mul(MULT_SCALE)
+        .saturating_mul(MULT_SCALE)
+        .saturating_mul(MULT_SCALE);
+
+    let mut num: u128 = notional;
+    let mut den: u128 = den0;
+
+    for factor in [base_rate, lev_charged, crowd, system_accrued] {
+        let g = gcd(num, den);
+        num /= g;
+        den /= g;
+        num = match num.checked_mul(factor) {
+            Some(v) => v,
+            None => {
+                let bits = 128u32 - num.leading_zeros();
+                let shift = bits.saturating_sub(64);
+                num >>= shift;
+                den >>= shift;
+                match num.checked_mul(factor) {
+                    Some(v) => v,
+                    None => return u128::MAX,
+                }
+            }
+        };
+    }
+
+    let g = gcd(num, den);
+    let num = num / g;
+    let den = den / g;
+    if den == 0 {
+        return u128::MAX;
+    }
+    let result = match num.checked_add(den - 1) {
+        Some(v) => v / den,
+        None => num / den,
+    };
+    result.max(min_premium)
+}
+
+// ============================================================================
 // Full premium calculation
 // ============================================================================
 

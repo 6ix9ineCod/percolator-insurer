@@ -569,3 +569,38 @@ fn test_system_index_scaled_multiplies() {
     );
     assert_eq!(s, 6 * MULT_SCALE);
 }
+
+#[test]
+fn test_interval_premium_matches_per_slot_when_constant() {
+    use percolator_insurance::premium::{compute_interval_premium, compute_premium_per_slot};
+    let notional = 1_000_000u128;
+    let base_rate = 1_000_000u128;
+    let n = 100u128;
+    let m = MULT_SCALE;
+    let lev_charged = m; // 1.0
+    let crowd = m;       // 1.0
+    let system_accrued = m * n; // neutral system integrated over n slots
+
+    let interval = compute_interval_premium(notional, base_rate, lev_charged, crowd, system_accrued, 1);
+
+    let idx = RiskIndex::neutral();
+    let per_slot = compute_premium_per_slot(notional, u128::MAX, base_rate, &idx, 1);
+    let lo = per_slot.saturating_mul(n).saturating_sub(n);
+    let hi = per_slot.saturating_mul(n).saturating_add(n);
+    assert!(interval >= lo && interval <= hi,
+        "interval {interval} not within [{lo},{hi}] of per_slot*n");
+}
+
+#[test]
+fn test_interval_premium_saturates_up_on_overflow() {
+    use percolator_insurance::premium::compute_interval_premium;
+    let p = compute_interval_premium(u128::MAX, u128::MAX, MULT_SCALE, MULT_SCALE, MULT_SCALE, 1);
+    assert!(p > 1, "overflow must saturate up, not collapse to min_premium; got {p}");
+}
+
+#[test]
+fn test_interval_premium_zero_accrued_is_min() {
+    use percolator_insurance::premium::compute_interval_premium;
+    let p = compute_interval_premium(1_000_000, 1_000_000, MULT_SCALE, MULT_SCALE, 0, 7);
+    assert_eq!(p, 7);
+}
