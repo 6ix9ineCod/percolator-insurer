@@ -228,6 +228,10 @@ pub struct InsuredRiskEngine {
     pub pool: PremiumPool,
     pub premium_params: PremiumParams,
     pub account_premiums: [AccountPremiumState; MAX_ACCOUNTS],
+    /// Monotonic accumulator of system_index_scaled × slots (funding pattern).
+    pub cum_system_index: u128,
+    /// Slot at which `cum_system_index` was last advanced.
+    pub last_accrue_slot: u64,
 }
 
 impl InsuredRiskEngine {
@@ -261,6 +265,8 @@ impl InsuredRiskEngine {
             pool: PremiumPool::new(),
             premium_params,
             account_premiums: [AccountPremiumState::new(); MAX_ACCOUNTS],
+            cum_system_index: 0,
+            last_accrue_slot: init_slot,
         })
     }
 
@@ -387,6 +393,51 @@ impl InsuredRiskEngine {
         }
         let abs_pos = pos.unsigned_abs();
         abs_pos.saturating_mul(self.engine.last_oracle_price as u128) / POS_SCALE
+    }
+
+    // ====================================================================
+    // Global system-risk accumulator (funding-style)
+    // ====================================================================
+
+    /// Current account-independent system index in MULT_SCALE units
+    /// (oi_vault × pool_health × volatility). No account dimension.
+    fn current_system_index(&self) -> u128 {
+        let long_oi = self.engine.oi_eff_long_q;
+        let short_oi = self.engine.oi_eff_short_q;
+        let vault = self.engine.vault.get();
+        let oracle_price = self.engine.last_oracle_price;
+        let pp = &self.premium_params;
+
+        let total_oi_q = long_oi.saturating_add(short_oi);
+        let total_oi_notional = if oracle_price > 0 {
+            total_oi_q.saturating_mul(oracle_price as u128) / POS_SCALE
+        } else {
+            0
+        };
+        let oi_vault = oi_vault_multiplier(
+            total_oi_notional, vault,
+            pp.oi_vault_floor_ratio_num, pp.oi_vault_floor_ratio_den,
+            pp.oi_vault_cap_ratio_num, pp.oi_vault_cap_ratio_den, pp.oi_vault_mult_max,
+        );
+        let pool_health = pool_health_multiplier(
+            self.pool.balance, total_oi_notional,
+            pp.pool_health_low_num, pp.pool_health_low_den,
+            pp.pool_health_high_num, pp.pool_health_high_den, pp.pool_health_mult_max,
+        );
+        let volatility = (pp.volatility_mult_num, pp.volatility_mult_den);
+        crate::premium::compute_system_index_scaled(oi_vault, pool_health, volatility)
+    }
+
+    /// Advance the global system-risk accumulator to `now_slot`. Permissionless;
+    /// a no-op when time does not advance. The keeper SHOULD call this each crank.
+    pub fn accrue(&mut self, now_slot: u64) {
+        if now_slot <= self.last_accrue_slot {
+            return;
+        }
+        let dt = (now_slot - self.last_accrue_slot) as u128;
+        let s = self.current_system_index();
+        self.cum_system_index = self.cum_system_index.saturating_add(s.saturating_mul(dt));
+        self.last_accrue_slot = now_slot;
     }
 
     // ====================================================================

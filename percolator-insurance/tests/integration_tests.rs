@@ -618,3 +618,18 @@ fn test_wrapper_rejects_zero_volatility_den() {
         "zero volatility_mult_den must be rejected at construction"
     );
 }
+
+#[test]
+fn test_accrue_global_is_monotonic_and_advances() {
+    let mut engine = setup_engine();
+    let start = engine.cum_system_index;
+    engine.accrue(10);
+    let after = engine.cum_system_index;
+    assert!(after >= start, "accumulator must be monotonic");
+    assert_eq!(engine.last_accrue_slot, 10);
+    let frozen = engine.cum_system_index;
+    engine.accrue(10);
+    assert_eq!(engine.cum_system_index, frozen, "no-op when slot does not advance");
+    engine.accrue(5);
+    assert_eq!(engine.cum_system_index, frozen, "no-op when slot goes backward");
+}
