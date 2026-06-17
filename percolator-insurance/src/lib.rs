@@ -1,8 +1,15 @@
-//! Insurance Premium Pool for Percolator Risk Engine
+//! Risk-priced premium pool for the Percolator risk engine.
 //!
-//! Wrapper crate that adds risk-priced insurance premiums to Percolator.
-//! Collects per-slot fees based on leverage, market crowding, system leverage,
-//! and pool health. Feeds Percolator's insurance fund via its public API.
+//! Wrapper crate that adds a dynamic, risk-priced *protocol fee* on top of
+//! Percolator. Collects per-slot premiums based on leverage, market crowding,
+//! system leverage, and pool health, and routes them into Percolator's
+//! insurance fund via its public API.
+//!
+//! NOTE: despite the "insurance" naming, these premiums are a risk-based
+//! surcharge feeding the shared solvency buffer — not insurance coverage.
+//! There is no policyholder, covered event, or claim payout. See README.md.
+//!
+//! EDUCATIONAL RESEARCH — NOT PRODUCTION READY, NOT AUDITED.
 //!
 //! All math is pure integer arithmetic using u256 intermediates.
 //! No floating point. no_std compatible.

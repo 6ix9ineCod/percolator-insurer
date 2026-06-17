@@ -11,7 +11,7 @@ use crate::risk_index::{
     crowding_multiplier, oi_vault_multiplier, pool_health_multiplier, RiskIndex,
 };
 use crate::{InsuredError, MULT_SCALE, POS_SCALE};
-use percolator::{LiquidationPolicy, RiskEngine, RiskError, RiskParams, MAX_ACCOUNTS};
+use percolator::{LiquidationPolicy, RiskEngine, RiskParams, MAX_ACCOUNTS};
 
 #[derive(Clone, Copy, Debug)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
@@ -219,25 +219,20 @@ impl InsuredRiskEngine {
         }
 
         if remaining > 0 {
-            match self
-                .engine
+            // The engine caps the fee at the account's available capital and
+            // silently drops any excess (charge_fee_to_insurance), returning Ok
+            // even when capital is insufficient. Measure the actual insurance-
+            // fund delta and record only that — recording the requested amount
+            // would over-state the pool's claim on the fund.
+            let before = self.engine.insurance_fund.balance.get();
+            self.engine
                 .charge_account_fee_not_atomic(idx, remaining, now_slot)
-            {
-                Ok(()) => {
-                    self.pool.record_collection(remaining)?;
-                    collected += remaining;
-                }
-                Err(RiskError::InsufficientBalance) => {
-                    let available = self.engine.accounts[i].capital.get();
-                    if available > 0 {
-                        self.engine
-                            .charge_account_fee_not_atomic(idx, available, now_slot)
-                            .map_err(InsuredError::Risk)?;
-                        self.pool.record_collection(available)?;
-                        collected += available;
-                    }
-                }
-                Err(e) => return Err(InsuredError::Risk(e)),
+                .map_err(InsuredError::Risk)?;
+            let after = self.engine.insurance_fund.balance.get();
+            let actually_collected = after.saturating_sub(before);
+            if actually_collected > 0 {
+                self.pool.record_collection(actually_collected)?;
+                collected += actually_collected;
             }
         }
 
@@ -354,16 +349,19 @@ impl InsuredRiskEngine {
 
         let mut charged = 0u128;
         if commitment > 0 {
-            match self
-                .engine
+            // Record only what actually reached the insurance fund: the engine
+            // caps the charge at available capital and drops the rest (see
+            // collect_accrued_premium). prepaid_premium must reflect the real
+            // amount paid, not the requested commitment.
+            let before = self.engine.insurance_fund.balance.get();
+            self.engine
                 .charge_account_fee_not_atomic(idx, commitment, now_slot)
-            {
-                Ok(()) => {
-                    self.pool.record_collection(commitment)?;
-                    charged = commitment;
-                }
-                Err(RiskError::InsufficientBalance) => {}
-                Err(e) => return Err(InsuredError::Risk(e)),
+                .map_err(InsuredError::Risk)?;
+            let after = self.engine.insurance_fund.balance.get();
+            let actually_charged = after.saturating_sub(before);
+            if actually_charged > 0 {
+                self.pool.record_collection(actually_charged)?;
+                charged = actually_charged;
             }
         }
 

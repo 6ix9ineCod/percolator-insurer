@@ -246,3 +246,59 @@ fn test_reconcile_pool() {
     );
     assert!(engine.pool.check_invariants());
 }
+
+#[test]
+fn test_pool_records_only_actual_collection_when_capital_insufficient() {
+    // The engine caps a fee at the account's available capital and silently
+    // drops any excess (charge_fee_to_insurance), returning Ok even when the
+    // account cannot pay in full. The wrapper must therefore record into the
+    // pool only what ACTUALLY reached the insurance fund — never the requested
+    // amount. Over-recording inflates the pool's claim above the fund balance,
+    // which reconcile_pool then mistakes for a deficit payout: total_paid_out
+    // rises even though no loss occurred.
+    let rp = test_risk_params();
+    let pp = test_premium_params(); // min_commitment_slots = 216_000
+    let oracle = 1000u64;
+    let slot = 1u64;
+
+    let mut engine = InsuredRiskEngine::new(rp, pp, slot, oracle).unwrap();
+
+    // Counterparty is well funded.
+    engine.deposit(1, 10_000_000, slot).unwrap();
+    // Account 0 is deliberately underfunded: enough margin to open the
+    // position, but far less than the 216_000 commitment premium.
+    engine.deposit(0, 100_000, slot).unwrap();
+
+    engine
+        .engine
+        .keeper_crank_not_atomic(
+            slot,
+            oracle,
+            &[] as &[(u16, Option<LiquidationPolicy>)],
+            64,
+            0i128,
+            0,
+            100,
+            None,
+            0,
+        )
+        .unwrap();
+
+    // Opening the position charges the commitment premium to both accounts.
+    // Account 0 cannot cover it, so only part reaches the fund.
+    engine
+        .execute_trade(0, 1, oracle, 2, make_size_q(10), oracle, 0, 0, 100, None)
+        .unwrap();
+
+    // No liquidation, no socialized loss has happened — only premium
+    // collection — so the pool must not have booked any payout.
+    assert_eq!(
+        engine.pool.total_paid_out, 0,
+        "pool booked a phantom payout (total_paid_out={}) — premiums were over-recorded \
+         beyond what the underfunded account actually paid into the insurance fund",
+        engine.pool.total_paid_out
+    );
+    assert!(engine.pool.balance <= engine.engine.insurance_fund.balance.get());
+    assert!(engine.pool.check_invariants());
+    assert!(engine.engine.check_conservation());
+}
