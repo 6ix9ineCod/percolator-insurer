@@ -732,6 +732,12 @@ impl InsuredRiskEngine {
         now_slot: u64,
         caller: Option<&[u8; 32]>,
     ) -> crate::Result<()> {
+        // Task 6: advance the global system-risk accumulator from every wrapped
+        // op so an account that never touches still pays for elapsed system risk.
+        // Idempotent/no-op when time has not advanced, so ordering it before the
+        // collect below is safe (collect's own accrue then sees the same slot).
+        self.accrue(now_slot);
+
         let i = idx as usize;
         if i < MAX_ACCOUNTS {
             // WS2 Task 4: authorization hook (no-op when guard disabled).
@@ -762,6 +768,10 @@ impl InsuredRiskEngine {
         admit_h_max: u64,
         admit_h_max_consumption_threshold_bps_opt: Option<u128>,
     ) -> crate::Result<()> {
+        // Task 6: advance the global system-risk accumulator from every wrapped
+        // op (idempotent/no-op when time has not advanced).
+        self.accrue(now_slot);
+
         let ai = a as usize;
         let bi = b as usize;
 
@@ -928,6 +938,10 @@ impl InsuredRiskEngine {
         admit_h_max_consumption_threshold_bps_opt: Option<u128>,
         caller: Option<&[u8; 32]>,
     ) -> crate::Result<()> {
+        // Task 6: advance the global system-risk accumulator from every wrapped
+        // op (idempotent/no-op when time has not advanced).
+        self.accrue(now_slot);
+
         let i = idx as usize;
         if i < MAX_ACCOUNTS {
             // WS2 Task 4: authorization + oracle sanity. Withdraw extracts
@@ -969,6 +983,10 @@ impl InsuredRiskEngine {
         admit_h_max: u64,
         admit_h_max_consumption_threshold_bps_opt: Option<u128>,
     ) -> crate::Result<bool> {
+        // Task 6: advance the global system-risk accumulator from every wrapped
+        // op (idempotent/no-op when time has not advanced).
+        self.accrue(now_slot);
+
         let i = idx as usize;
         // WS2 Task 4: the oracle-sanity guard is INTENTIONALLY NOT applied to
         // liquidation. Liquidation is a risk-REDUCING keeper action, not an

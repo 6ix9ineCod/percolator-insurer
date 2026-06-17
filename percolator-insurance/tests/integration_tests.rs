@@ -671,5 +671,27 @@ fn test_leverage_flicker_billed_at_high_endpoint() {
     assert!(engine.account_premiums[0].last_leverage_factor >= MULT_SCALE);
 }
 
+#[test]
+fn test_deposit_advances_global_accumulator() {
+    // Task 6: every wrapped op must advance the global system-risk accumulator,
+    // even for an account whose own premium-collection path never runs. Open a
+    // position on accounts 0/1 so there is live OI driving a nonzero system
+    // index, then deposit into a FRESH, inactive account (2): its collect path
+    // early-returns (inactive), so ONLY the explicit `accrue` inside the wrapped
+    // op can advance the accumulator. The slot gap stays inside the engine's
+    // accrual envelope (max_accrual_dt_slots = 100; trade at slot 2, deposit at
+    // slot 50 = 48 slots).
+    let mut engine = setup_engine();
+    engine.execute_trade(0, 1, 1000, 2, make_size_q(10), 1000, 0, 0, 100, None).unwrap();
+    assert!(!engine.account_premiums[2].is_active, "account 2 must be inactive");
+    let before = engine.cum_system_index;
+    engine.deposit(2, 1_000, 50).unwrap(); // inactive account, 48 slots later
+    assert!(
+        engine.cum_system_index > before,
+        "deposit must advance the accumulator even for an inactive account"
+    );
+    assert_eq!(engine.last_accrue_slot, 50);
+}
+
 
 
