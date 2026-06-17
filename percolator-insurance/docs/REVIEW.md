@@ -95,17 +95,20 @@ and reserve depletion. Never market it as "insurance" to users or regulators
 
 ## Deferred findings — roadmap
 
-Tracked here (convert to GitHub Issues with `gh issue create` if desired):
+Status as of the hardening pass (commits `f843f5b`, `b4af21d`, `291d9e6`).
+Pricing-calibration items are addressed as **mechanism + documented governance
+default**; the actual numeric calibration still requires a historical
+liquidation-loss dataset and a target ruin probability (tracked, not invented).
 
 - [x] **CRITICAL** Pool over-records premiums beyond actual collection — *FIXED `34585ad`* (+ regression test).
-- [ ] **HIGH** Route recurring accrual through `sync_account_fee_to_slot_not_atomic` (or document why the parallel `last_premium_slot` bookkeeping is double-charge-safe).
-- [ ] **HIGH** Implement wrapper compliance duties: authorization hook, oracle staleness/divergence gating, live-PnL admission warmup.
-- [ ] **HIGH (pricing)** Anchor `base_rate` to an expected-loss / ruin-probability model; add a loss-ratio concept to the pool.
-- [ ] **HIGH (pricing)** Inject a volatility / gap-risk factor into the premium formula.
-- [ ] **MEDIUM (pricing)** Re-derive the leverage exponent from the liquidation-buffer curve; surcharge as `L → 1/maintenance_margin`.
-- [ ] **MEDIUM (pricing)** Make `pool_health` collection counter-cyclical — cap stress-period charges below the account's liquidation buffer.
-- [ ] **MEDIUM** Charge on a TWA of notional/leverage; re-price commitment to the max observed risk index to close gaming windows.
-- [ ] **MEDIUM** Re-point the crowding factor at the cohort that absorbs socialized deficits, or drop it.
-- [ ] **MEDIUM** Fix the `base_rate` overflow fallback to saturate-or-error; add a boundary test.
-- [ ] **LOW** Stop discarding `collect_accrued_premium` Results in the wrapped ops; define a failure policy.
-- [ ] **LOW** Add Kani harnesses (pool invariants across collect/consume/reconcile; premium monotonicity & no-panic; `isqrt`/`inth_root` floor correctness) to match the parent's verification bar.
+- [x] **HIGH** Recurring accrual API — *resolved `b4af21d`*: kept the one-shot charge + crate-owned `last_premium_slot` with a documented double-charge-safety proof (the recurring API would freeze the per-slot re-pricing; both paths share `charge_fee_to_insurance`).
+- [x] **HIGH** Wrapper compliance duties — *`b4af21d`*: opt-in oracle staleness/divergence guard + authorization hook on extraction-sensitive ops (default-permissive; full sourcing/auth remain the integrator's, flagged `PRODUCTION NOTE`).
+- [x] **HIGH (pricing)** `base_rate` anchor — *`f843f5b`*: `calibrate_base_rate()` helper derives the rate from a target loss ratio + observed claims/exposure. *Calibration to a fitted distribution + ruin target still required (documented).*
+- [x] **HIGH (pricing)** Volatility / gap-risk factor — *`f843f5b`*: `volatility` multiplier added to `RiskIndex` + the premium formula (neutral default; `CALIBRATION REQUIRED` for an oracle-realized-vol source).
+- [x] **MEDIUM (pricing)** Leverage tail-surcharge — *`f843f5b`*: surcharge ramps as `L → 1/maintenance_margin` where the buffer collapses (governance default; exact curve needs fitting).
+- [x] **MEDIUM (pricing)** `pool_health` collection made counter-cyclical — *`b4af21d`*: `cap_premium_to_maint_buffer` prevents collection pushing an account below its maintenance buffer (configurable, default off).
+- [ ] **MEDIUM** Charge on a TWA of notional/leverage; re-price commitment to the max observed risk index to close gaming windows. — *Not yet done; needs a dedicated accrual-accounting redesign (partially mitigated by the counter-cyclical cap + activation commitment).*
+- [x] **MEDIUM** Crowding re-pointed at the loss-bearing cohort — *`f843f5b`*: now charges the minority/counterparty side that absorbs the engine's socialized K-shift, not the crowded majority.
+- [x] **MEDIUM** `base_rate` overflow fallback — *`291d9e6`*: saturates the premium upward on true overflow instead of silently dropping the factor (+ boundary test).
+- [x] **LOW** Discarded `collect_accrued_premium` Results — *`b4af21d`*: now propagated (`?`); a genuine collection fault aborts the wrapped op.
+- [x] **LOW** Kani harnesses — *`291d9e6`*: `#[cfg(kani)]` proofs for pool invariants, premium no-panic + monotonicity, and `isqrt`/`inth_root` floor correctness. Run with `cargo kani -p percolator-insurance`.
