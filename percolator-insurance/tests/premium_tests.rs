@@ -41,8 +41,9 @@ fn test_isqrt_non_perfect() {
 #[test]
 fn test_isqrt_large() {
     let r = isqrt(u128::MAX);
-    // r should be floor(sqrt(u128::MAX))
-    assert!(r * r <= u128::MAX, "r*r should not exceed u128::MAX");
+    // floor(sqrt(u128::MAX)) == u64::MAX (the old `r*r <= u128::MAX` assertion
+    // was tautological — any u128 is <= u128::MAX — and clippy flags it).
+    assert_eq!(r, u64::MAX as u128, "floor(sqrt(u128::MAX)) should be u64::MAX");
     // (r+1)^2 must overflow u128 — floor(sqrt(u128::MAX)) == u64::MAX,
     // and (u64::MAX + 1)^2 = 2^128 which overflows u128.
     let r1 = r + 1;
@@ -524,5 +525,25 @@ fn test_premium_base_rate_overflow_saturates_not_drops_factor() {
         "overflow fallback must saturate upward, not drop the base_rate factor; \
          got {} (silent-drop bug yields ~0)",
         result
+    );
+}
+
+#[test]
+fn test_premium_saturates_up_on_multiplier_overflow() {
+    // Review #5: a multiplier-chain overflow (a later factor's product exceeds
+    // u128) must SATURATE the premium upward — folding a >= 1.0 multiplier can
+    // never legitimately COLLAPSE the premium to the floor. The old mul_component!
+    // bail returned `min_premium`, under-pricing and breaking monotonicity at the
+    // overflow boundary.
+    // notional = u128::MAX with capital = 1 → astronomically high leverage, so
+    // leverage_multiplier saturates to (u64::MAX, MULT_SCALE). Folding that
+    // (>= 1.0) factor into an already-maximal numerator overflows the chain and
+    // hits the mul_component! bail. With the old `min_premium` bail the premium
+    // COLLAPSED to the floor; it must saturate UP instead.
+    let idx = RiskIndex::neutral();
+    let p = compute_premium_per_slot(u128::MAX, 1, 1, &idx, 1);
+    assert!(
+        p > 1,
+        "multiplier overflow must saturate up, not drop to min_premium; got {p}"
     );
 }

@@ -244,6 +244,12 @@ impl InsuredRiskEngine {
             || premium_params.oi_vault_cap_ratio_den == 0
             || premium_params.pool_health_low_den == 0
             || premium_params.pool_health_high_den == 0
+            // Review #2: a zero volatility denominator silently collapses the
+            // multiplier chain's `den` to 0, neutralizing the premium to
+            // min_premium instead of erroring; a zero numerator zeroes it. Both
+            // are misconfigurations — reject them like every other ratio param.
+            || premium_params.volatility_mult_den == 0
+            || premium_params.volatility_mult_num == 0
         {
             return Err(InsuredError::InvalidParams);
         }
@@ -262,6 +268,14 @@ impl InsuredRiskEngine {
         if account_idx >= MAX_ACCOUNTS {
             return RiskIndex::neutral();
         }
+        let notional = self.account_notional(account_idx);
+        self.risk_index_with_notional(account_idx, notional)
+    }
+
+    /// Build the risk index reusing an already-computed `notional`, so the
+    /// per-slot hot path doesn't call `account_notional` twice (review #3).
+    fn risk_index_with_notional(&self, account_idx: usize, notional: u128) -> RiskIndex {
+        debug_assert!(account_idx < MAX_ACCOUNTS);
         let long_oi = self.engine.oi_eff_long_q;
         let short_oi = self.engine.oi_eff_short_q;
         let vault = self.engine.vault.get();
@@ -346,7 +360,7 @@ impl InsuredRiskEngine {
         // Task 3: leverage tail surcharge. Maintenance margin is read from the
         // engine's live RiskParams (`maintenance_margin_bps`), so the surcharge
         // tracks the actual maintenance limit `L_max = 10_000 / mm_bps`.
-        let notional = self.account_notional(account_idx);
+        // `notional` is supplied by the caller (computed once).
         let capital = self.engine.accounts[account_idx].capital.get();
         let leverage_tail = leverage_tail_surcharge(
             notional,
@@ -366,6 +380,7 @@ impl InsuredRiskEngine {
     }
 
     fn account_notional(&self, idx: usize) -> u128 {
+        debug_assert!(idx < MAX_ACCOUNTS, "account_notional: idx out of range");
         let pos = self.engine.accounts[idx].position_basis_q;
         if pos == 0 {
             return 0;
@@ -435,9 +450,13 @@ impl InsuredRiskEngine {
         // Staleness: how long since the engine last cranked its mark.
         if pp.max_oracle_staleness_slots > 0 {
             let last = self.engine.last_market_slot;
-            // now_slot is the slot the caller is acting at; staleness is the gap
-            // since the engine's mark was last refreshed.
-            let staleness = now_slot.saturating_sub(last);
+            // Review #6: clamp the time reference to the engine's own
+            // `current_slot` so a caller cannot UNDERSTATE staleness by passing a
+            // small `now_slot`. (The engine independently rejects
+            // `now_slot < current_slot` on the actual op, but this guard runs
+            // before that and must be robust on its own.)
+            let now = now_slot.max(self.engine.current_slot);
+            let staleness = now.saturating_sub(last);
             if staleness > pp.max_oracle_staleness_slots {
                 return Err(InsuredError::OracleDivergence);
             }
@@ -506,8 +525,16 @@ impl InsuredRiskEngine {
         let slots_elapsed = now_slot - last;
 
         let notional = self.account_notional(i);
+        // Review #4: a flat account (notional == 0) owes no premium
+        // (compute_premium_per_slot returns 0 for it anyway) — skip building the
+        // full risk index and premium entirely on the per-slot hot path.
+        if notional == 0 {
+            self.account_premiums[i].last_premium_slot = now_slot;
+            return Ok(0);
+        }
         let capital = self.engine.accounts[i].capital.get();
-        let risk_idx = self.compute_risk_index(i);
+        // Review #3: reuse `notional` instead of recomputing it in the index.
+        let risk_idx = self.risk_index_with_notional(i, notional);
 
         let rate = compute_premium_per_slot(
             notional,
@@ -565,6 +592,21 @@ impl InsuredRiskEngine {
         Ok(collected)
     }
 
+    /// Reconcile the premium pool's claim against the real insurance-fund
+    /// balance, attributing any shortfall to deficit coverage.
+    ///
+    /// INVARIANT (review #1): this attribution is only correct if the wrapper is
+    /// the SOLE mutator of the insurance fund. The pool is an accounting shadow
+    /// — `reconcile_with_insurance_balance` treats *any* drop in the fund below
+    /// the pool's recorded claim as premium-funded deficit coverage. If an
+    /// integrator drains the fund through the engine's governance entrypoints
+    /// (`withdraw_insurance_not_atomic` / `withdraw_live_insurance_not_atomic` /
+    /// `withdraw_resolved_insurance_not_atomic`) while bypassing this wrapper,
+    /// that withdrawal is mis-booked as a phantom payout, polluting
+    /// `total_paid_out` (the loss-ratio signal `calibrate_base_rate` consumes).
+    /// A production integration must therefore either route all insurance-fund
+    /// mutations through the wrapper, or replace this inferential reconcile with
+    /// an engine-exposed premium-attributable-consumption counter.
     pub fn reconcile_pool(&mut self) {
         let insurance = self.engine.insurance_fund.balance.get();
         self.pool.reconcile_with_insurance_balance(insurance);
@@ -697,7 +739,8 @@ impl InsuredRiskEngine {
 
         let notional = self.account_notional(i);
         let capital = self.engine.accounts[i].capital.get();
-        let risk_idx = self.compute_risk_index(i);
+        // Review #3: reuse `notional` instead of recomputing it in the index.
+        let risk_idx = self.risk_index_with_notional(i, notional);
 
         let rate = compute_premium_per_slot(
             notional,

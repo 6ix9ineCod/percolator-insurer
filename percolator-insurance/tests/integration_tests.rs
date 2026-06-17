@@ -604,3 +604,17 @@ fn test_authorization_guard_rejects_unauthorized_caller() {
         bad
     );
 }
+
+#[test]
+fn test_wrapper_rejects_zero_volatility_den() {
+    // Review #2: volatility_mult_den == 0 silently neutralizes the premium to
+    // min_premium (den collapses in the multiplier chain) instead of erroring.
+    // new() must reject it like every other denominator param.
+    let rp = test_risk_params();
+    let mut pp = test_premium_params();
+    pp.volatility_mult_den = 0;
+    assert!(
+        InsuredRiskEngine::new(rp, pp, 1, 1000).is_err(),
+        "zero volatility_mult_den must be rejected at construction"
+    );
+}

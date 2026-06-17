@@ -648,20 +648,34 @@ pub fn compute_premium_per_slot(
         }};
     }
 
-    mul_component!(num, den, lev_num, lev_den, min_premium);
-    mul_component!(num, den, crowd_num, crowd_den, min_premium);
-    mul_component!(num, den, oiv_num, oiv_den, min_premium);
-    mul_component!(num, den, pool_num, pool_den, min_premium);
-    mul_component!(num, den, vol_num, vol_den, min_premium);
-    mul_component!(num, den, tail_num, tail_den, min_premium);
+    // Bail value on a multiplier-fold overflow is `u128::MAX` (saturate UP), not
+    // `min_premium`. Every factor folded here is >= 1.0 (each canonical
+    // multiplier floors at MULT_SCALE; the leverage/tail/vol factors are >= 1.0),
+    // so folding one can only RAISE the premium. Collapsing to `min_premium` on
+    // overflow would under-price and break monotonicity at the boundary
+    // (review #5). u128::MAX is the conservative, monotonic answer — consistent
+    // with the base_rate overflow fix above. Triggers only at astronomical,
+    // non-economic magnitudes.
+    mul_component!(num, den, lev_num, lev_den, u128::MAX);
+    mul_component!(num, den, crowd_num, crowd_den, u128::MAX);
+    mul_component!(num, den, oiv_num, oiv_den, u128::MAX);
+    mul_component!(num, den, pool_num, pool_den, u128::MAX);
+    mul_component!(num, den, vol_num, vol_den, u128::MAX);
+    mul_component!(num, den, tail_num, tail_den, u128::MAX);
 
     // Final GCD reduction
     let g = gcd(num, den);
     let num = num / g;
     let den = den / g;
 
+    // `den` starts at PREMIUM_SCALE and only ever shrinks via exact GCD division
+    // (which keeps it >= 1) — EXCEPT the overflow `den >>= shift` fallback in
+    // mul_component!, which can underflow it to 0. So `den == 0` implies an
+    // overflow occurred and the true premium is astronomically large: saturate
+    // UP (review #5), consistent with the other overflow paths. Never collapse
+    // to min_premium here.
     if den == 0 {
-        return min_premium;
+        return u128::MAX;
     }
 
     // Ceiling division: (num + den - 1) / den
